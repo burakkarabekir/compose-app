@@ -1,0 +1,67 @@
+package com.bksd.core_data.api.mapper
+
+import com.bksd.core_domain.exception.PaymentRequiredException
+import com.bksd.core_domain.exception.UnauthorizedAccessException
+import com.bksd.core_domain.exception.WordApiClientException
+import com.bksd.core_domain.exception.WordApiNetworkException
+import com.bksd.core_domain.exception.WordApiParsingException
+import com.bksd.core_domain.exception.WordApiRateLimitException
+import com.bksd.core_domain.exception.WordApiServerException
+import com.bksd.core_domain.exception.WordApiTimeoutException
+import com.bksd.core_domain.exception.WordNotFoundException
+import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.plugins.HttpRequestTimeoutException
+import io.ktor.client.plugins.ServerResponseException
+import io.ktor.http.HttpStatusCode
+
+/**
+ * Component responsible for mapping exceptions that occur during API requests
+ * to domain-specific exceptions.
+ */
+class ExceptionMapper {
+    /**
+     * Maps a throwable to an appropriate API exception.
+     *
+     * @param throwable The exception to map
+     * @param word The word being processed when the exception occurred
+     * @return A domain-specific exception
+     */
+    fun mapException(throwable: Throwable, word: String): Exception {
+        return when (throwable) {
+            is ClientRequestException -> mapClientException(throwable, word)
+            is ServerResponseException -> WordApiServerException(
+                "Server error: ${throwable.response.status}",
+                throwable
+            )
+
+            is HttpRequestTimeoutException -> WordApiTimeoutException(20_000L)
+            is WordApiParsingException -> throwable
+            else -> WordApiNetworkException(
+                "Unexpected error during API request: ${throwable.message}",
+                throwable
+            )
+        }
+    }
+
+    /**
+     * Maps client request exceptions based on HTTP status codes.
+     *
+     * @param exception The client request exception
+     * @param word The word being processed
+     * @return A domain-specific exception
+     */
+    private fun mapClientException(exception: ClientRequestException, word: String): Exception {
+        return when (exception.response.status) {
+            HttpStatusCode.NotFound -> WordNotFoundException(word)
+            HttpStatusCode.Unauthorized -> UnauthorizedAccessException()
+            HttpStatusCode.PaymentRequired -> PaymentRequiredException()
+            HttpStatusCode.TooManyRequests -> WordApiRateLimitException()
+            HttpStatusCode.BadRequest -> WordApiClientException(
+                "Invalid request: ${exception.message}",
+                exception
+            )
+
+            else -> WordApiNetworkException("API error: ${exception.response.status}", exception)
+        }
+    }
+}

@@ -1,16 +1,21 @@
 package com.bksd.core_domain.extension
 
-import com.bksd.core_domain.result.Result
+import com.bksd.core_domain.result.DomainResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
-fun <T> Flow<T>.asResult(): Flow<Result<T>> = flow {
+fun <T> Flow<T>.asResult(): Flow<DomainResult<T>> = flow {
     try {
-        emit(Result.Loading)
+        emit(DomainResult.Loading)
         collect { value ->
-            emit(Result.Success(value))
+            emit(DomainResult.Success(value))
         }
     } catch (e: Exception) {
-        emit(Result.Error(e, e.message ?: "Unknown Error"))
+        emit(
+            DomainResult.Error(
+                e, e.message
+                    ?: "Unknown Error"
+            )
+        )
     }
 }

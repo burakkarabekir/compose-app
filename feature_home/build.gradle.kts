@@ -40,6 +40,7 @@ android {
 dependencies {
     implementation(project(":route"))
     implementation(project(":core_ui"))
+    implementation(project(":core_domain"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
@@ -51,6 +52,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+    implementation(libs.coil.compose)
 
     implementation(libs.koin.core)
     implementation(libs.koin.androidx.compose)

@@ -1,5 +1,7 @@
 package com.bksd.core_domain.usecase
 
+import com.bksd.core_domain.dto.WordInformation
+import com.bksd.core_domain.result.DomainResult
 import kotlinx.coroutines.flow.Flow
 
 abstract class UseCase<in P, R> {
@@ -11,7 +13,7 @@ abstract class NoParamUseCase<R> {
 }
 
 abstract class FlowUseCase<in P, R> {
-    abstract operator fun invoke(params: P): Flow<Result<R>>
+    abstract suspend operator fun invoke(params: P): Flow<DomainResult<WordInformation>>
 }
 
 abstract class NoParamFlowUseCase<R> {

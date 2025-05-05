@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets
 
 sealed class AppRoutes(val route: String) {
     data object Home : AppRoutes("home")
+    data object Search : AppRoutes("search")
     data object WordDetail : AppRoutes("word_detail/{word}/{pronunciation}") {
         fun withArgs(
             word: String,

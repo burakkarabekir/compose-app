@@ -1,14 +1,12 @@
 package com.bksd.core_ui
 
-
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import com.bksd.core_ui.extension.simpleLaunch
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
 /**
  * Base ViewModel class that provides common functionality for managing UI state and events.
@@ -16,7 +14,7 @@ import kotlinx.coroutines.launch
  * @param S The type of data associated with the [UiState.Success] state.
  * @param E The type of events that the ViewModel can handle.
  */
-abstract class BaseVM<S, E>(initialState: UiState.Loading = UiState.Loading) : ViewModel() {
+abstract class BaseVM<S, E>(initialState: UiState<S>) : ViewModel() {
     protected val _uiState = MutableStateFlow<UiState<S>>(initialState)
     val uiState = _uiState.asStateFlow()
 
@@ -31,9 +29,5 @@ abstract class BaseVM<S, E>(initialState: UiState.Loading = UiState.Loading) : V
     abstract fun onEvent(event: E)
 
     protected fun updateState(transform: (UiState<S>) -> UiState<S>) = _uiState.update(transform)
-    protected fun sendEvent(event: UiEvent) {
-        viewModelScope.launch {
-            _uiEvent.send(event)
-        }
-    }
+    protected fun sendEvent(event: UiEvent) = simpleLaunch { _uiEvent.send(event) }
 }

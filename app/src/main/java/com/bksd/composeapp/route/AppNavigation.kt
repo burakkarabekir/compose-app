@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.bksd.feature_home.route.homeNavGraph
 import com.bksd.feature_home.route.wordDetailNavGraph
+import com.bksd.feature_search.route.searchNavGraph
 import com.bksd.route.AppNavigationCommand
 import com.bksd.route.AppNavigator
 import com.bksd.route.AppRoutes
@@ -70,5 +71,6 @@ fun AppNavigation(
     ) {
         homeNavGraph(navigator)
         wordDetailNavGraph(navigator)
+        searchNavGraph(navigator)
     }
 }

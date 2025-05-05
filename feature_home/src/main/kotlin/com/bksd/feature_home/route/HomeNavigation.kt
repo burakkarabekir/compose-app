@@ -7,6 +7,7 @@ import com.bksd.route.AppRoutes
 
 interface HomeNavigation {
     fun navigateToWordOfDayDetail(wordOfDayUi: WordOfDayUi)
+    fun navigateToSearch()
 }
 
 class HomeNavigationImpl(
@@ -18,6 +19,12 @@ class HomeNavigationImpl(
             AppNavigationCommand.Navigate(
                 AppRoutes.WordDetail.withArgs(wordOfDayUi.word, wordOfDayUi.pronunciation)
             )
+        )
+    }
+
+    override fun navigateToSearch() {
+        navigator.navigate(
+            AppNavigationCommand.Navigate(AppRoutes.Search.route)
         )
     }
 }

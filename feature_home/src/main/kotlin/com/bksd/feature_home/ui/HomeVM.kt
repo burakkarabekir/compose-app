@@ -47,9 +47,13 @@ class HomeVM(
             is HomeScreenEvent.ItemClicked -> sendEvent(Navigate(event.id))
             is HomeScreenEvent.OnCategorySelected -> sendEvent(Navigate(event.index.toString()))
             is HomeScreenEvent.OnRecentSearchClick -> sendEvent(Navigate(event.query))
-            is HomeScreenEvent.OnSearch -> sendEvent(Navigate(event.query))
-            is HomeScreenEvent.OnSearchQueryChange -> sendEvent(Navigate(event.query))
-            is HomeScreenEvent.OnWordOfDayClick -> sendEvent(NavigateCall {
+            is HomeScreenEvent.OnSearch -> sendEvent(
+                NavigateCall {
+                    homeNavigation.navigateToSearch()
+                })
+
+            is HomeScreenEvent.OnWordOfDayClick -> sendEvent(
+                NavigateCall {
                 homeNavigation.navigateToWordOfDayDetail(
                     uiState.value.getOrNull()?.wordOfDay!!
                 )

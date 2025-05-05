@@ -1,5 +1,6 @@
 package com.bksd.feature_home.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
@@ -60,34 +61,26 @@ fun HomeScreen(
     }
 
     HomeContent(
-        searchQuery = uiState.getOrNull()?.searchQuery.orEmpty(),
-        onSearchQueryChange = { viewModel.onEvent(HomeScreenEvent.OnSearchQueryChange(it)) },
-        onSearch = { viewModel.onEvent(HomeScreenEvent.OnSearch(it)) },
+        onSearchClick = { viewModel.onEvent(HomeScreenEvent.OnSearch) },
         wordOfDay = uiState.getOrNull()?.wordOfDay,
         onWordOfDayClick = { viewModel.onEvent(HomeScreenEvent.OnWordOfDayClick) },
         selectedCategory = uiState.getOrNull()?.selectedCategory ?: 0,
         onCategorySelected = { viewModel.onEvent(HomeScreenEvent.OnCategorySelected(it)) },
         recentSearches = uiState.getOrNull()?.recentSearches,
         onRecentSearchClick = { viewModel.onEvent(HomeScreenEvent.OnRecentSearchClick(it)) },
-        navigator = navigator
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun HomeContent(
-    searchQuery: String,
-    onSearchQueryChange: (String) -> Unit,
-    onSearch: (String) -> Unit,
     wordOfDay: WordOfDayUi?,
-    onWordOfDayClick: () -> Unit,
     selectedCategory: Int,
-    onCategorySelected: (Int) -> Unit,
+    onWordOfDayClick: () -> Unit,
     recentSearches: List<RecentWordUi>?,
+    onCategorySelected: (Int) -> Unit,
+    onSearchClick: () -> Unit,
     onRecentSearchClick: (String) -> Unit,
-    navigator: AppNavigator,
-    /*state: UiState<HomeScreenState>,
-    onEvent: (HomeScreenEvent) -> Unit,*/
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -108,17 +101,24 @@ fun HomeContent(
                     .fillMaxWidth()
             ) {
                 TextField(
-                    value = searchQuery,
-                    onValueChange = onSearchQueryChange,
+                    value = "",
+                    onValueChange = { },
+                    enabled = false,
+                    readOnly = true,
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                     placeholder = { Text("Search for a word") },
                     colors = TextFieldDefaults.colors(
                         disabledIndicatorColor = Color.Transparent,
                         focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
+                        unfocusedIndicatorColor = Color.Transparent,
+                        disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant
                     ),
                     singleLine = true,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable(onClick = onSearchClick)
                 )
             }
 

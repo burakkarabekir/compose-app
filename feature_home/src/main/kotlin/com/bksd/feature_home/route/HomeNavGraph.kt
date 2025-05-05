@@ -37,4 +37,3 @@ fun NavGraphBuilder.wordDetailNavGraph(navigator: AppNavigator) {
         )
     }
 }
-

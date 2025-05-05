@@ -1,5 +1,6 @@
 [versions]
-agp = "8.9.1"
+agp = "8.9.2"
+coilCompose = "2.4.0"
 koinAndroid = "4.0.4"
 koinAndroidxCompose = "4.0.4"
 koinCore = "4.0.4"
@@ -8,19 +9,26 @@ coreKtx = "1.16.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
+kotlinxCoroutinesAndroid = "1.8.0"
 kotlinxCoroutinesCore = "1.8.0"
+kotlinxSerializationJson = "1.7.3"
+ktorVersion = "2.3.7"
 lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.10.1"
-composeBom = "2025.04.00"
-navigationCommonAndroid = "2.9.0-beta01"
-navigationRuntimeAndroid = "2.9.0-beta01"
+composeBom = "2025.04.01"
+mockitoCore = "5.17.0"
+mockitoKotlin = "5.17.0"
+mockk = "5.17.0"
+navigationCommonAndroid = "2.9.0-rc01"
+navigationRuntimeAndroid = "2.9.0-rc01"
 navigationCompose = "2.8.9"
 appcompat = "1.7.0"
-navigationComposeAndroid = "2.9.0-beta01"
+navigationComposeAndroid = "2.9.0-rc01"
 material = "1.12.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -42,12 +50,22 @@ koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", versi
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koinCore" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 androidx-navigation-compose-android = { group = "androidx.navigation", name = "navigation-compose-android", version.ref = "navigationComposeAndroid" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktorVersion" }
+ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktorVersion" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktorVersion" }
+ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktorVersion" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktorVersion" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
+mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 android-library = { id = "com.android.library", version.ref = "agp" }
-
+serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

@@ -20,38 +20,3 @@ fun Application.initKoin(
         modules(appModule + additionalModules)
     }
 }
-
-// Feature modules
-
-/*
-
-val viewModelModule = module {
-    viewModel {
-        MainViewModel(get())
-    }
-    viewModel {
-        HomeViewModel(get(), get())
-    }
-    viewModel { parameters ->
-        DetailViewModel(get(), parameters.get())
-    }
-}
-
-val repositoryModule = module {
-    single<UserRepository> {
-        UserRepositoryImpl(get(), get())
-    }
-    single<DataRepository> {
-        DataRepositoryImpl(get(), get())
-    }
-}
-
-val dataSourceModule = module {
-    single {
-        createDatabase(get())
-    }
-    single {
-        createApiService(get())
-    }
-}
-*/

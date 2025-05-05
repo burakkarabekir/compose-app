@@ -4,6 +4,7 @@ import android.app.Application
 import com.bksd.composeapp.di.initKoin
 import com.bksd.core_data.di.dataModule
 import com.bksd.feature_home.di.featureHomeModule
+import com.bksd.feature_search.di.featureSearchModule
 import com.bksd.route.di.routeModule
 
 class ComposeApp : Application() {
@@ -13,7 +14,8 @@ class ComposeApp : Application() {
             additionalModules = listOf(
                 routeModule,
                 dataModule,
-                featureHomeModule
+                featureHomeModule,
+                featureSearchModule
             )
         )
     }

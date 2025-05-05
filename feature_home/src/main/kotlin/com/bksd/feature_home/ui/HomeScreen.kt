@@ -1,21 +1,42 @@
 package com.bksd.feature_home.ui
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import com.bksd.core_ui.UiState
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.bksd.core_ui.UiEvent
+import com.bksd.feature_home.ui.component.AnimatedCategoryRow
+import com.bksd.feature_home.ui.component.AppBottomNavigation
+import com.bksd.feature_home.ui.component.BottomNavItem
+import com.bksd.feature_home.ui.component.RecentCard
+import com.bksd.feature_home.ui.component.WordOfDayCard
+import com.bksd.feature_home.ui.model.RecentWordUi
+import com.bksd.feature_home.ui.model.WordOfDayUi
 import com.bksd.feature_home.ui.state.HomeScreenEvent
-import com.bksd.feature_home.ui.state.HomeScreenState
+import com.bksd.route.AppNavigationCommand
 import com.bksd.route.AppNavigator
 import org.koin.androidx.compose.koinViewModel
 
@@ -26,38 +47,108 @@ fun HomeScreen(
     viewModel: HomeVM = koinViewModel()
 ) {
 
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.uiEvent.collect { event ->
+            when (event) {
+                is UiEvent.Navigate -> navigator.navigate(AppNavigationCommand.Navigate(event.route))
+                is UiEvent.NavigateCall -> event.route()
+                else -> {}
+            }
+        }
+    }
 
     HomeContent(
-        state = uiState,
-        onEvent = viewModel::onEvent  // Handles HomeEvent
+        searchQuery = uiState.getOrNull()?.searchQuery.orEmpty(),
+        onSearchQueryChange = { viewModel.onEvent(HomeScreenEvent.OnSearchQueryChange(it)) },
+        onSearch = { viewModel.onEvent(HomeScreenEvent.OnSearch(it)) },
+        wordOfDay = uiState.getOrNull()?.wordOfDay,
+        onWordOfDayClick = { viewModel.onEvent(HomeScreenEvent.OnWordOfDayClick) },
+        selectedCategory = uiState.getOrNull()?.selectedCategory ?: 0,
+        onCategorySelected = { viewModel.onEvent(HomeScreenEvent.OnCategorySelected(it)) },
+        recentSearches = uiState.getOrNull()?.recentSearches,
+        onRecentSearchClick = { viewModel.onEvent(HomeScreenEvent.OnRecentSearchClick(it)) },
+        navigator = navigator
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun HomeContent(state: UiState<HomeScreenState>, onEvent: (HomeScreenEvent) -> Unit) {
+fun HomeContent(
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit,
+    onSearch: (String) -> Unit,
+    wordOfDay: WordOfDayUi?,
+    onWordOfDayClick: () -> Unit,
+    selectedCategory: Int,
+    onCategorySelected: (Int) -> Unit,
+    recentSearches: List<RecentWordUi>?,
+    onRecentSearchClick: (String) -> Unit,
+    navigator: AppNavigator,
+    /*state: UiState<HomeScreenState>,
+    onEvent: (HomeScreenEvent) -> Unit,*/
+    modifier: Modifier = Modifier,
+) {
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Home") },
-                actions = {
-                    IconButton(
-                        onClick = {
-                            /*navigator.navigate(
-                                NavigationType.Navigate(AppRoutes.Settings.route)
-                            )*/
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings"
-                        )
-                    }
-                }
-            )
-        }
+        bottomBar = { AppBottomNavigation(selectedItem = BottomNavItem.Home, onItemSelected = {}) }
     ) { paddingValues ->
-        Text(text = "Home Screen", modifier = Modifier.padding(paddingValues))
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(paddingValues)
+                .padding(16.dp)
+        ) {
+            Surface(
+                tonalElevation = 4.dp,
+                shape = RoundedCornerShape(24.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                TextField(
+                    value = searchQuery,
+                    onValueChange = onSearchQueryChange,
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                    placeholder = { Text("Search for a word") },
+                    colors = TextFieldDefaults.colors(
+                        disabledIndicatorColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    ),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Word of the Day
+            WordOfDayCard(
+                word = wordOfDay,
+                modifier = modifier,
+                onClick = { onWordOfDayClick() }
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Category selector with animation
+            AnimatedCategoryRow(
+                selectedIndex = selectedCategory,
+                onSelect = onCategorySelected
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Recent Searches
+            recentSearches?.let {
+                RecentCard(
+                    recentSearches = it,
+                    onRecentSearchClick = onRecentSearchClick,
+                    modifier = modifier
+                )
+            }
+        }
     }
 }

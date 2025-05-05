@@ -4,8 +4,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.bksd.composeapp.ui.theme.ComposeAppTheme
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
 import com.bksd.composeapp.route.AppNavigation
+import com.bksd.composeapp.ui.theme.ComposeAppTheme
 import com.bksd.route.AppNavigator
 import org.koin.android.ext.android.inject
 
@@ -16,9 +20,14 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ComposeAppTheme {
-                AppNavigation(
-                    navigator = navigator,
-                )
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    AppNavigation(
+                        navigator = navigator,
+                    )
+                }
             }
         }
     }

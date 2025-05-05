@@ -98,3 +98,6 @@ release.properties
 
 # Reports
 */compose_compiler
+
+# Config
+config.properties

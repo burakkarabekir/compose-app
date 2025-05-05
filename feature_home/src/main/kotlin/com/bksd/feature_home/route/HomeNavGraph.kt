@@ -6,8 +6,7 @@ import com.bksd.feature_home.ui.HomeScreen
 import com.bksd.feature_home.ui.WordDetailScreen
 import com.bksd.route.AppNavigator
 import com.bksd.route.AppRoutes
-import java.net.URLDecoder
-import java.nio.charset.StandardCharsets
+import com.bksd.route.AppRoutes.Companion.decode
 
 fun NavGraphBuilder.homeNavGraph(navigator: AppNavigator) {
     composable(
@@ -39,5 +38,3 @@ fun NavGraphBuilder.wordDetailNavGraph(navigator: AppNavigator) {
     }
 }
 
-private fun String.decode(): String =
-    URLDecoder.decode(this, StandardCharsets.UTF_8.toString())

@@ -26,9 +26,9 @@ class ExceptionMapper {
      * @param word The word being processed when the exception occurred
      * @return A domain-specific exception
      */
-    fun mapException(throwable: Throwable, word: String): Exception {
+    fun mapException(throwable: Throwable, word: String? = null): Exception {
         return when (throwable) {
-            is ClientRequestException -> mapClientException(throwable, word)
+            is ClientRequestException -> mapClientException(throwable, word ?: "word :: null")
             is ServerResponseException -> WordApiServerException(
                 "Server error: ${throwable.response.status}",
                 throwable

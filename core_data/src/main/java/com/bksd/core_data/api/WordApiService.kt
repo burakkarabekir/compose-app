@@ -1,5 +1,6 @@
 package com.bksd.core_data.api
 
+import com.bksd.core_data.dto.WordOfDayResponse
 import com.bksd.core_data.dto.WordServiceResponse
 import io.ktor.client.statement.HttpResponse
 import kotlinx.coroutines.flow.Flow
@@ -16,6 +17,7 @@ interface WordApiService {
      * @return A Flow emitting the complete word information
      */
     suspend fun getWordInformation(word: String): Flow<WordServiceResponse>
+    suspend fun getWordOfDay(): WordOfDayResponse
 
     /**
      * Fetches only the definitions for a word.

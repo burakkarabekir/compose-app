@@ -1,8 +1,10 @@
 package com.bksd.core_data.api.executor
 
 import com.bksd.core_data.BuildConfig
+import com.bksd.core_data.config.JsonProvider
 import com.bksd.core_data.config.WordApiConfig
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
 import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
@@ -15,7 +17,6 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.serialization.json.Json
 
 /**
  * Component responsible for executing HTTP requests to the Word API.
@@ -28,11 +29,7 @@ class ApiRequestExecutor(
     val client: HttpClient by lazy {
         HttpClient(Android) {
             install(ContentNegotiation) {
-                json(Json {
-                    prettyPrint = true
-                    isLenient = true
-                    ignoreUnknownKeys = true
-                })
+                json(JsonProvider.instance)
             }
 
             install(Logging) {
@@ -62,20 +59,21 @@ class ApiRequestExecutor(
      */
     suspend fun execute(
         endpoint: String,
-        word: String,
-        params: Map<String, String> = emptyMap()
+        pathParam: String?,
+        queryParams: Map<String, String> = emptyMap()
     ): HttpResponse {
-        return client.get("${config.baseUrl}/$endpoint/${word.trim().lowercase()}") {
-            // Add common headers
+        buildString {
+            append(config.baseUrl).append("/").append(endpoint)
+            pathParam?.takeIf(String::isNotBlank)?.let { append("/").append(it) }
+        }.trim().lowercase().let { url ->
+            return client.get(url) {
             headers {
                 append(BuildConfig.KEY_API_KEY, config.apiKey)
                 append(BuildConfig.KEY_API_HOST, BuildConfig.VALUE_API_HOST)
             }
             contentType(ContentType.Application.Json)
-            // Add any additional parameters
-            params.forEach { (key, value) ->
-                parameter(key, value)
-            }
+                queryParams.forEach { (key, value) -> parameter(key, value) }
+            }.body()
         }
     }
 

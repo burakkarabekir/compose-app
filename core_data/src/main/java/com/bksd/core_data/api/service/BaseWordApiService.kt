@@ -5,9 +5,10 @@ import com.bksd.core_data.api.cache.WordApiCache
 import com.bksd.core_data.api.executor.ApiRequestExecutor
 import com.bksd.core_data.api.mapper.ExceptionMapper
 import com.bksd.core_data.api.mapper.ResponseMapper
-import com.bksd.core_data.dto.WordServiceResponse
+import com.bksd.core_data.config.JsonProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.serialization.encodeToString
 
 /**
  * Base class for Word API service implementations.
@@ -16,43 +17,87 @@ import kotlinx.coroutines.flow.flow
  * @property requestExecutor Component for executing HTTP requests
  * @property responseMapper Component for mapping HTTP responses to domain objects
  * @property exceptionMapper Component for mapping exceptions
- * @property cache Component for caching responses
+ * @property cache Component for caching responses (type-agnostic)
  */
 abstract class BaseWordApiService(
-    protected val requestExecutor: ApiRequestExecutor,
-    protected val responseMapper: ResponseMapper,
-    protected val exceptionMapper: ExceptionMapper,
-    protected val cache: WordApiCache<WordServiceResponse>
+    val requestExecutor: ApiRequestExecutor,
+    val responseMapper: ResponseMapper,
+    val exceptionMapper: ExceptionMapper,
+    val cache: WordApiCache
 ) {
     /**
-     * Creates a Flow that handles caching and API requests for a specific endpoint.
+     * Creates a flow that fetches data from cache or API.
      *
      * @param endpoint The API endpoint to call
-     * @param word The word to look up
-     * @return A Flow emitting the API response
+     * @param pathParam The path parameter (e.g., word) to use in the request
+     * @param queryParams Optional query parameters for the API call
      */
-    protected fun createApiFlow(endpoint: String, word: String): Flow<WordServiceResponse> = flow {
-        val sanitizedWord = word.trim().lowercase()
-            .also { Log.d("MyDebugger :: ", "Word: $it") }
+    protected suspend inline fun <reified R : Any> createApiFlow(
+        endpoint: String,
+        pathParam: String? = null,
+        queryParams: Map<String, String> = emptyMap()
+    ): Flow<R> = flow {
+        val sanitizedPath = pathParam?.trim()?.lowercase()?.takeIf { it.isNotBlank() }.orEmpty()
+        Log.d("ComposeAppLogger :: BaseWordApiService", "Lookup pathParam: $sanitizedPath")
 
-        // Try to get from cache first
-        cache.get(endpoint, sanitizedWord)?.let {
-            emit(it)
-                .also { a -> Log.d("MyDebugger ::", "Word in Cache :: $sanitizedWord") }
+        // Try reading from cache (raw JSON) and deserializing lazily
+        cache.get(endpoint, sanitizedPath) { raw ->
+            JsonProvider.instance.decodeFromString<R>(raw)
+        }?.let { cachedValue ->
+            Log.d("ComposeAppLogger :: BaseWordApiService", "Cache hit for $sanitizedPath")
+            emit(cachedValue)
             return@flow
         }
 
-        // If not in cache, make API request
+        // Not in cache — fetch from API
         try {
-            val response = requestExecutor.execute(endpoint, sanitizedWord)
-            val wordResponse = responseMapper.mapResponse<WordServiceResponse>(response)
+            val response = requestExecutor.execute(endpoint, sanitizedPath, queryParams)
+            val result: R = responseMapper.mapResponse(response)
+            val readyForCache = pathParam?.trim()?.lowercase()?.takeIf { it.isNotBlank() } ?: "test"
+            // Serialize and store in cache
+            cache.put(endpoint, readyForCache, result) { obj ->
+                JsonProvider.instance.encodeToString(obj)
+            }
+            Log.d("ComposeAppLogger :: BaseWordApiService", "Cache saved for $sanitizedPath")
+            Log.d("ComposeAppLogger :: BaseWordApiService", "Cache saved for $readyForCache")
 
-            // Cache the response
-            cache.put(endpoint, sanitizedWord, wordResponse)
-                .also { a -> Log.d("MyDebugger ::", "Word saved in Cache :: $sanitizedWord") }
-            emit(wordResponse)
+            emit(result)
         } catch (e: Exception) {
-            throw exceptionMapper.mapException(e, sanitizedWord)
+            throw exceptionMapper.mapException(e, sanitizedPath)
+        }
+    }
+
+    protected suspend inline fun <reified R : Any> callApi(
+        endpoint: String,
+        pathParam: String? = null,
+        queryParams: Map<String, String> = emptyMap()
+    ): R {
+        val sanitizedPath = pathParam?.trim()?.lowercase()?.takeIf { it.isNotBlank() }.orEmpty()
+        Log.d("ComposeAppLogger :: BaseWordApiService", "Lookup pathParam: $sanitizedPath")
+
+        // Try reading from cache (raw JSON) and deserializing lazily
+        cache.get(endpoint, sanitizedPath) { raw ->
+            JsonProvider.instance.decodeFromString<R>(raw)
+        }?.let { cachedValue ->
+            Log.d("ComposeAppLogger :: BaseWordApiService", "Cache hit for $sanitizedPath")
+            return cachedValue
+
+        }
+
+        // Not in cache — fetch from API
+        try {
+            val response = requestExecutor.execute(endpoint, sanitizedPath, queryParams)
+            val result: R = responseMapper.mapResponse(response)
+
+            // Serialize and store in cache
+            cache.put(endpoint, sanitizedPath, result) { obj ->
+                JsonProvider.instance.encodeToString(obj)
+            }
+            Log.d("ComposeAppLogger :: BaseWordApiService", "Cache saved for $sanitizedPath")
+
+            return result
+        } catch (e: Exception) {
+            throw exceptionMapper.mapException(e, sanitizedPath)
         }
     }
 }

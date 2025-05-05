@@ -2,9 +2,11 @@ package com.bksd.core_data.api
 
 import com.bksd.core_data.api.cache.WordApiCache
 import com.bksd.core_data.api.executor.ApiRequestExecutor
+import com.bksd.core_data.api.executor.ApiRequestExecutor.Companion.ENDPOINT_WORD
 import com.bksd.core_data.api.mapper.ExceptionMapper
 import com.bksd.core_data.api.mapper.ResponseMapper
 import com.bksd.core_data.api.service.BaseWordApiService
+import com.bksd.core_data.dto.WordOfDayResponse
 import com.bksd.core_data.dto.WordServiceResponse
 import io.ktor.client.statement.HttpResponse
 import kotlinx.coroutines.flow.Flow
@@ -17,11 +19,14 @@ class WordApiServiceImpl(
     requestExecutor: ApiRequestExecutor,
     responseMapper: ResponseMapper,
     exceptionMapper: ExceptionMapper,
-    cache: WordApiCache<WordServiceResponse>
+    cache: WordApiCache
 ) : BaseWordApiService(requestExecutor, responseMapper, exceptionMapper, cache), WordApiService {
 
     override suspend fun getWordInformation(word: String): Flow<WordServiceResponse> =
-        createApiFlow(ApiRequestExecutor.ENDPOINT_WORD, word)
+        createApiFlow(ENDPOINT_WORD, word)
+
+    override suspend fun getWordOfDay(): WordOfDayResponse =
+        callApi(endpoint = ENDPOINT_WORD, queryParams = mapOf("random" to "true"))
 
     override suspend fun getWordDefinition(word: String): Flow<WordServiceResponse> =
         createApiFlow(ApiRequestExecutor.ENDPOINT_DEFINITION, word)

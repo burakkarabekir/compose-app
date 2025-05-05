@@ -3,69 +3,111 @@ package com.bksd.core_data.api.cache
 import com.bksd.core_data.extension.InMemoryCache
 
 /**
- * Component responsible for caching API responses to reduce network requests.
- * Uses endpoint and word as the cache key components.
- *
- * @param T The type of objects to cache
- * @property cache The underlying cache implementation
+ * A type-agnostic cache interface for API responses.
  */
-class WordApiCache<T : Any>(
-    private val cache: InMemoryCache<String, T>
-) {
+interface WordApiCache {
     /**
-     * Gets a cached response for the given endpoint and word.
+     * Retrieves a cached JSON string for the given endpoint and key, and deserializes it.
      *
-     * @param endpoint The API endpoint
-     * @param word The word that was looked up
-     * @return The cached response or null if not in cache
+     * @param T The target type of the cached object.
+     * @param endpoint The API endpoint.
+     * @param key The cache key (e.g. sanitized word).
+     * @param deserializer Function to convert the raw JSON into T.
+     * @return A deserialized object of type T or null if not cached.
      */
-    fun get(endpoint: String, word: String): T? {
-        return cache.get(createCacheKey(endpoint, word))
+    suspend fun <T : Any> get(
+        endpoint: String,
+        key: String,
+        deserializer: (String) -> T
+    ): T?
+
+    /**
+     * Serializes and stores the given object under the composite cache key.
+     *
+     * @param T The type of the object to cache.
+     * @param endpoint The API endpoint.
+     * @param key The cache key.
+     * @param value The object to cache.
+     * @param serializer Function to convert the object to JSON.
+     */
+    suspend fun <T : Any> put(
+        endpoint: String,
+        key: String,
+        value: T,
+        serializer: (T) -> String
+    )
+
+    /** Clears all entries from the cache. */
+    fun clear()
+}
+
+/**
+ * In-memory implementation of [WordApiCache], storing raw JSON strings.
+ */
+class InMemoryWordApiCache(
+    private val cache: InMemoryCache<String, String>
+) : WordApiCache {
+
+    init {
+        cache.put("endpoint1", "test1")
+        cache.put("endpoint2", "test2")
+        cache.put("endpoint3", "test3")
+        cache.put("endpoint4", "test4")
+        cache.put("endpoint5", "test5")
+    }
+
+    override suspend fun <T : Any> get(
+        endpoint: String,
+        key: String,
+        deserializer: (String) -> T
+    ): T? {
+        val raw = cache.get("$endpoint:$key") ?: return null
+        return deserializer(raw)
+    }
+
+    override suspend fun <T : Any> put(
+        endpoint: String,
+        key: String,
+        value: T,
+        serializer: (T) -> String
+    ) {
+        val raw = serializer(value)
+        cache.put("$endpoint:$key", raw)
     }
 
     /**
-     * Stores a response in the cache.
+     * Returns a list of all cached values as deserialized objects.
      *
-     * @param endpoint The API endpoint
-     * @param word The word that was looked up
-     * @param response The response to cache
+     * @param T The target type of each cached object.
+     * @param deserializer Function to convert each raw JSON string into T.
+     * @return A list of all cached entries.
      */
-    fun put(endpoint: String, word: String, response: T) {
-        cache.put(createCacheKey(endpoint, word), response)
-    }
+    suspend fun <T : Any> getAll(deserializer: (String) -> T): List<T> =
+        cache.snapshot().values.mapNotNull { raw ->
+            try {
+                deserializer(raw)
+            } catch (e: Exception) {
+                null
+            }
+        }
 
-    /**
-     * Clears all entries from the cache.
-     */
-    fun clear() {
+
+    override fun clear() {
         cache.clear()
-    }
-
-    /**
-     * Creates a cache key from endpoint and word.
-     *
-     * @param endpoint The API endpoint
-     * @param word The word that was looked up
-     * @return A cache key string
-     */
-    private fun createCacheKey(endpoint: String, word: String): String {
-        return "$endpoint:${word.trim().lowercase()}"
     }
 
     companion object {
         /**
-         * Creates a new WordApiCache with default settings.
+         * Convenience creator for an in-memory JSON cache.
          *
-         * @param T The type of objects to cache
-         * @param maxSize Maximum number of entries in the cache
-         * @param ttlMs Time-to-live in milliseconds
-         * @return A new WordApiCache instance
+         * @param maxSize Maximum number of entries.
+         * @param ttlMs Time-to-live in milliseconds.
          */
-        inline fun <reified T : Any> create(
+        fun create(
             maxSize: Int = 100,
-            ttlMs: Long = 3600_000L
-        ): WordApiCache<T> {
-            return WordApiCache(InMemoryCache(maxSize, ttlMs))
+            ttlMs: Long = 3_600_000L
+        ): WordApiCache {
+            return InMemoryWordApiCache(InMemoryCache(maxSize, ttlMs))
         }
     }
 }

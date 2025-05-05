@@ -19,15 +19,8 @@ class InMemoryCache<K, V>(
         val timestamp: Long
     )
 
-    // Thread-safe map implementation
     private val cache = ConcurrentHashMap<K, CacheEntry<V>>()
 
-    /**
-     * Retrieves a value from the cache if it exists and hasn't expired.
-     *
-     * @param key The key to look up
-     * @return The cached value or null if not found or expired
-     */
     fun get(key: K): V? {
         val entry = cache[key] ?: return null
         val currentTime = System.currentTimeMillis()
@@ -41,12 +34,6 @@ class InMemoryCache<K, V>(
         return entry.value
     }
 
-    /**
-     * Stores a value in the cache with the current timestamp.
-     *
-     * @param key The key to store
-     * @param value The value to cache
-     */
     fun put(key: K, value: V) {
         // Ensure we don't exceed maximum size
         evictIfNeeded()
@@ -57,44 +44,19 @@ class InMemoryCache<K, V>(
         )
     }
 
-    /**
-     * Removes an entry from the cache.
-     *
-     * @param key The key to remove
-     * @return True if an entry was removed, false otherwise
-     */
     fun remove(key: K): Boolean {
         return cache.remove(key) != null
     }
 
-    /**
-     * Clears all entries from the cache.
-     */
     fun clear() {
         cache.clear()
     }
-
-    /**
-     * Gets the current size of the cache.
-     *
-     * @return The number of entries in the cache
-     */
     fun size(): Int = cache.size
 
-    /**
-     * Checks if the cache contains a non-expired entry for the given key.
-     *
-     * @param key The key to check
-     * @return True if the cache contains a non-expired entry for the key
-     */
     fun contains(key: K): Boolean {
         return get(key) != null
     }
 
-    /**
-     * Evicts entries if the cache size exceeds the maximum size.
-     * Removes expired entries first, then oldest entries if still needed.
-     */
     private fun evictIfNeeded() {
         // First, remove all expired entries
         removeExpiredEntries()
@@ -110,9 +72,6 @@ class InMemoryCache<K, V>(
         }
     }
 
-    /**
-     * Removes all expired entries from the cache.
-     */
     private fun removeExpiredEntries() {
         val currentTime = System.currentTimeMillis()
         val iterator = cache.entries.iterator()
@@ -124,4 +83,8 @@ class InMemoryCache<K, V>(
             }
         }
     }
+
+    fun snapshot(): Map<K, V> = cache
+        .filterValues { System.currentTimeMillis() - it.timestamp <= ttlMs }
+        .mapValues { it.value.value }
 }

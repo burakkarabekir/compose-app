@@ -5,14 +5,14 @@ import com.bksd.core_ui.UiState
 import com.bksd.core_ui.extension.simpleLaunch
 import com.bksd.feature_search.domain.usecase.GetWordUseCase
 import com.bksd.feature_search.ui.event.SearchScreenEvent
-import com.bksd.feature_search.ui.mapper.WordDetailModelToUiMapper
+import com.bksd.feature_search.ui.mapper.WordDetailToUiMapper
 import com.bksd.feature_search.ui.mapper.toSearchScreenUiState
 import com.bksd.feature_search.ui.state.SearchScreenState
 import kotlinx.coroutines.flow.map
 
 class SearchVM(
     private val wordUseCase: GetWordUseCase,
-    private val mapper: WordDetailModelToUiMapper,
+    private val mapper: WordDetailToUiMapper,
 ) : BaseVM<SearchScreenState, SearchScreenEvent>(initialState = UiState.Initial) {
 
     private fun fetchWord(word: String) = simpleLaunch {

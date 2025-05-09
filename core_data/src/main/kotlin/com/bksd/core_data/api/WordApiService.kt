@@ -1,6 +1,6 @@
 package com.bksd.core_data.api
 
-import com.bksd.core_data.dto.WordDto
+import com.bksd.core_data.remote.dto.WordDto
 import io.ktor.client.statement.HttpResponse
 
 interface WordApiService {

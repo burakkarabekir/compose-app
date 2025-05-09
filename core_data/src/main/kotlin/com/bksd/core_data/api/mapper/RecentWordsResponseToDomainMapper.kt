@@ -1,13 +1,13 @@
 package com.bksd.core_data.api.mapper
 
-import com.bksd.core_data.dto.WordDto
+import com.bksd.core_data.remote.dto.WordDto
 import com.bksd.core_domain.mapper.ListMapper
-import com.bksd.core_domain.model.WordDetailModel
+import com.bksd.core_domain.model.WordDetail
 
-class RecentWordsResponseToDomainMapper : ListMapper<WordDto, WordDetailModel> {
-    override fun map(dto: List<WordDto>): List<WordDetailModel> =
+class RecentWordsResponseToDomainMapper : ListMapper<WordDto, WordDetail> {
+    override fun map(dto: List<WordDto>): List<WordDetail> =
         dto.map {
-            WordDetailModel(
+            WordDetail(
                 text = it.word.orEmpty(),
                 pronunciation = it.pronunciation?.all,
                 definition = it.results?.firstOrNull()?.definition,

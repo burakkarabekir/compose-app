@@ -6,7 +6,7 @@ import com.bksd.core_data.api.executor.ApiRequestExecutor.Companion.ENDPOINT_WOR
 import com.bksd.core_data.api.mapper.ExceptionMapper
 import com.bksd.core_data.api.mapper.ResponseMapper
 import com.bksd.core_data.api.service.BaseWordApiService
-import com.bksd.core_data.dto.WordDto
+import com.bksd.core_data.remote.dto.WordDto
 import io.ktor.client.statement.HttpResponse
 
 /**

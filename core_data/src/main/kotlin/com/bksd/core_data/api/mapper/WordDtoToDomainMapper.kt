@@ -1,11 +1,11 @@
 package com.bksd.core_data.api.mapper
 
-import com.bksd.core_data.dto.WordDto
+import com.bksd.core_data.remote.dto.WordDto
 import com.bksd.core_domain.mapper.BaseMapper
-import com.bksd.core_domain.model.WordDetailModel
+import com.bksd.core_domain.model.WordDetail
 
-class WordDtoToDomainMapper : BaseMapper<WordDto, WordDetailModel> {
-    override fun map(dto: WordDto): WordDetailModel = WordDetailModel(
+class WordDtoToDomainMapper : BaseMapper<WordDto, WordDetail> {
+    override fun map(dto: WordDto): WordDetail = WordDetail(
         text = dto.word.orEmpty(),
         pronunciation = dto.pronunciation?.all,
         definition = dto.results?.firstOrNull()?.definition,

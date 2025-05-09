@@ -1,7 +1,7 @@
 package com.bksd.core_domain.repository
 
-import com.bksd.core_domain.model.WordDetailModel
-import com.bksd.core_domain.model.WordOfDayModel
+import com.bksd.core_domain.model.WordDetail
+import com.bksd.core_domain.model.WordOfDay
 import com.bksd.core_domain.result.DomainResult
 import kotlinx.coroutines.flow.Flow
 
@@ -10,9 +10,9 @@ import kotlinx.coroutines.flow.Flow
  * Provides methods to fetch various aspects of word information.
  */
 interface WordRepository {
-    suspend fun getWordOfDay(): Flow<DomainResult<WordOfDayModel>>
-    suspend fun getRecentWords(): Flow<DomainResult<List<WordDetailModel>>>
-    suspend fun getWordInformation(word: String): Flow<DomainResult<WordDetailModel>>
+    suspend fun getWordOfDay(): Flow<DomainResult<WordOfDay>>
+    suspend fun getRecentWords(): Flow<DomainResult<List<WordDetail>>>
+    suspend fun getWordInformation(word: String): Flow<DomainResult<WordDetail>>
     /*
     suspend fun getWordDefinition(word: String): Flow<WordDefinition>
     suspend fun getWordSynonyms(word: String): Flow<WordSynonyms>

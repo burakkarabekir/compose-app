@@ -1,14 +1,14 @@
 package com.bksd.core_data.repository
 
-import com.bksd.core_data.datasource.WordLocalDataSourceImpl
-import com.bksd.core_data.datasource.WordRemoteDataSource
-import com.bksd.core_data.dto.WordDto
+import com.bksd.core_data.local.datasource.WordLocalDataSourceImpl
+import com.bksd.core_data.remote.datasource.WordRemoteDataSource
+import com.bksd.core_data.remote.dto.WordDto
 import com.bksd.core_domain.exception.WordApiException
 import com.bksd.core_domain.exception.WordNotFoundException
 import com.bksd.core_domain.mapper.BaseMapper
 import com.bksd.core_domain.mapper.ListMapper
-import com.bksd.core_domain.model.WordDetailModel
-import com.bksd.core_domain.model.WordOfDayModel
+import com.bksd.core_domain.model.WordDetail
+import com.bksd.core_domain.model.WordOfDay
 import com.bksd.core_domain.repository.WordRepository
 import com.bksd.core_domain.result.DomainResult
 import kotlinx.coroutines.flow.Flow
@@ -23,19 +23,19 @@ import kotlinx.coroutines.flow.flow
 class WordRepositoryImpl(
     private val remoteDataSource: WordRemoteDataSource,
     private val localeDataSource: WordLocalDataSourceImpl,
-    private val mapper: BaseMapper<WordDto, WordOfDayModel>,
-    private val listMapper: ListMapper<WordDto, WordDetailModel>,
-    private val wordMapper: BaseMapper<WordDto, WordDetailModel>,
+    private val mapper: BaseMapper<WordDto, WordOfDay>,
+    private val listMapper: ListMapper<WordDto, WordDetail>,
+    private val wordMapper: BaseMapper<WordDto, WordDetail>,
 ) : WordRepository {
 
     override suspend fun getWordInformation(
          word: String
-    ): Flow<DomainResult<WordDetailModel>> = flow {
+    ): Flow<DomainResult<WordDetail>> = flow {
         emit(DomainResult.Loading)
         val response = remoteDataSource.fetchWord(word)
 
         response.getOrNull()?.let {
-            val result: WordDetailModel = try {
+            val result: WordDetail = try {
                 wordMapper.map(it)
             } catch (e: Exception) {
                 emit(DomainResult.Error(e, e.message.orEmpty()))
@@ -45,12 +45,12 @@ class WordRepositoryImpl(
         } ?: emit(DomainResult.Empty)
     }
 
-    override suspend fun getWordOfDay(): Flow<DomainResult<WordOfDayModel>> = flow {
+    override suspend fun getWordOfDay(): Flow<DomainResult<WordOfDay>> = flow {
         emit(DomainResult.Loading)
         val response = remoteDataSource.fetchWordOfDay()
 
         response.getOrNull()?.let {
-            val result: WordOfDayModel = try {
+            val result: WordOfDay = try {
                 mapper.map(it)
             } catch (e: Exception) {
                 emit(DomainResult.Error(e, e.message.orEmpty()))
@@ -60,13 +60,13 @@ class WordRepositoryImpl(
         } ?: emit(DomainResult.Empty)
     }
 
-    override suspend fun getRecentWords(): Flow<DomainResult<List<WordDetailModel>>> = flow {
+    override suspend fun getRecentWords(): Flow<DomainResult<List<WordDetail>>> = flow {
         emit(DomainResult.Loading)
         val response = localeDataSource.getCachedWords()
             ?: listOf(WordDto("deneme"), WordDto("deneme2"))
 
         response.let {
-            val result: List<WordDetailModel> = try {
+            val result: List<WordDetail> = try {
                 listMapper.map(it)
             } catch (e: Exception) {
                 emit(DomainResult.Error(e, e.message.orEmpty()))

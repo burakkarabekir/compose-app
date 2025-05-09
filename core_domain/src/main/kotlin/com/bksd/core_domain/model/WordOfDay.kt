@@ -1,6 +1,6 @@
 package com.bksd.core_domain.model
 
-data class WordOfDayModel(
+data class WordOfDay(
     val word: String?,
     val pronunciation: String?,
     val synonyms: List<String>?,

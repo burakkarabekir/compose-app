@@ -1,7 +1,7 @@
 package com.bksd.feature_search.ui.mapper
 
 import com.bksd.core_domain.mapper.BaseMapper
-import com.bksd.core_domain.model.WordDetailModel
+import com.bksd.core_domain.model.WordDetail
 import com.bksd.core_domain.result.DomainResult
 import com.bksd.core_ui.UiState
 import com.bksd.core_ui.model.WordDetailCardUi
@@ -11,8 +11,8 @@ import com.bksd.feature_search.ui.state.SearchScreenState
  * Mapper to convert WordOfDayModel (domain) to WordOfDayUi (UI) model.
  * Adds a default label and maintains other properties.
  */
-class WordDetailModelToUiMapper : BaseMapper<WordDetailModel, WordDetailCardUi> {
-    override fun map(model: WordDetailModel): WordDetailCardUi = WordDetailCardUi(
+class WordDetailToUiMapper : BaseMapper<WordDetail, WordDetailCardUi> {
+    override fun map(model: WordDetail): WordDetailCardUi = WordDetailCardUi(
         word = model.text,
         pronunciation = model.pronunciation,
         definition = model.definition,
@@ -21,8 +21,8 @@ class WordDetailModelToUiMapper : BaseMapper<WordDetailModel, WordDetailCardUi> 
     )
 }
 
-fun DomainResult<WordDetailModel>.toSearchScreenUiState(
-    mapper: WordDetailModelToUiMapper
+fun DomainResult<WordDetail>.toSearchScreenUiState(
+    mapper: WordDetailToUiMapper
 ): UiState<SearchScreenState> = when (this) {
     is DomainResult.Success -> UiState.Success(
         SearchScreenState(

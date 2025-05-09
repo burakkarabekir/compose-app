@@ -1,8 +1,8 @@
-package com.bksd.core_data.datasource
+package com.bksd.core_data.remote.datasource
 
 import com.bksd.core_data.api.WordApiService
-import com.bksd.core_data.dto.WordDto
 import com.bksd.core_data.network.DataState
+import com.bksd.core_data.remote.dto.WordDto
 
 class WordRemoteDataSourceImpl(
     private val api: WordApiService,

@@ -12,15 +12,15 @@ import com.bksd.core_data.api.mapper.WordDtoToDomainMapper
 import com.bksd.core_data.api.mapper.WordResponseToDomainMapper
 import com.bksd.core_data.config.JsonProvider
 import com.bksd.core_data.config.WordApiConfig
-import com.bksd.core_data.datasource.WordLocalDataSourceImpl
-import com.bksd.core_data.datasource.WordRemoteDataSource
-import com.bksd.core_data.datasource.WordRemoteDataSourceImpl
-import com.bksd.core_data.dto.WordDto
+import com.bksd.core_data.local.datasource.WordLocalDataSourceImpl
+import com.bksd.core_data.remote.datasource.WordRemoteDataSource
+import com.bksd.core_data.remote.datasource.WordRemoteDataSourceImpl
+import com.bksd.core_data.remote.dto.WordDto
 import com.bksd.core_data.repository.WordRepositoryImpl
 import com.bksd.core_domain.mapper.BaseMapper
 import com.bksd.core_domain.mapper.ListMapper
-import com.bksd.core_domain.model.WordDetailModel
-import com.bksd.core_domain.model.WordOfDayModel
+import com.bksd.core_domain.model.WordDetail
+import com.bksd.core_domain.model.WordOfDay
 import com.bksd.core_domain.repository.WordRepository
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
@@ -31,9 +31,9 @@ private const val WORD_INFO_MAPPER = "wordInfoMapper"
 
 val dataModule = module {
     // --- Mappers (named for disambiguation) ---
-    factory<BaseMapper<WordDto, WordOfDayModel>>(named(WORD_OF_DAY_MAPPER)) { WordResponseToDomainMapper() }
-    factory<ListMapper<WordDto, WordDetailModel>>(named(RECENT_WORDS_MAPPER)) { RecentWordsResponseToDomainMapper() }
-    factory<BaseMapper<WordDto, WordDetailModel>>(named(WORD_INFO_MAPPER)) { WordDtoToDomainMapper() }
+    factory<BaseMapper<WordDto, WordOfDay>>(named(WORD_OF_DAY_MAPPER)) { WordResponseToDomainMapper() }
+    factory<ListMapper<WordDto, WordDetail>>(named(RECENT_WORDS_MAPPER)) { RecentWordsResponseToDomainMapper() }
+    factory<BaseMapper<WordDto, WordDetail>>(named(WORD_INFO_MAPPER)) { WordDtoToDomainMapper() }
 
     // --- API / Network ---
     single { WordApiConfig() }

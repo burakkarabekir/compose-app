@@ -1,9 +1,9 @@
-package com.bksd.core_data.datasource
+package com.bksd.core_data.local.datasource
 
 import com.bksd.core_data.api.cache.InMemoryWordApiCache
 import com.bksd.core_data.api.cache.WordApiCache
 import com.bksd.core_data.config.JsonProvider
-import com.bksd.core_data.dto.WordDto
+import com.bksd.core_data.remote.dto.WordDto
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

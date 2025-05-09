@@ -1,6 +1,6 @@
 package com.bksd.core_domain.model
 
-data class WordDetailModel(
+data class WordDetail(
     val text: String,
     val pronunciation: String?,
     val definition: String?,

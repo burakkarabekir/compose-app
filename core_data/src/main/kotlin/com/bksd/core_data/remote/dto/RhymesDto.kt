@@ -1,4 +1,4 @@
-package com.bksd.core_data.dto
+package com.bksd.core_data.remote.dto
 
 import kotlinx.serialization.Serializable
 

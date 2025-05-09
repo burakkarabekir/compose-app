@@ -3,8 +3,8 @@ package com.bksd.feature_home.ui.component
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -14,7 +14,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 
 /**
  * A Bottom Navigation bar for the WordUp app.
- * Shows Home, Favorites, Quiz, and Profile items.
+ * Shows Home, Favorites, Quiz, and Search items.
  * @param selectedItem currently selected BottomNavItem
  * @param onItemSelected callback when an item is tapped
  */
@@ -40,11 +40,11 @@ fun AppBottomNavigation(
  */
 enum class BottomNavItem(val route: String, val icon: ImageVector, val label: String) {
     Home("home", Icons.Default.Home, "Home"),
+    Search("search", Icons.Default.Search, "Search"),
     Favorites("favorites", Icons.Default.Favorite, "Favorites"),
-    Quiz("quiz", Icons.Default.PlayArrow, "Quiz"),
-    Profile("profile", Icons.Default.Person, "Profile");
+    Quiz("quiz", Icons.Default.PlayArrow, "Quiz");
 
     companion object {
-        fun values(): List<BottomNavItem> = listOf(Home, Favorites, Quiz, Profile)
+        fun values(): List<BottomNavItem> = listOf(Home, Search, Favorites, Quiz)
     }
 }

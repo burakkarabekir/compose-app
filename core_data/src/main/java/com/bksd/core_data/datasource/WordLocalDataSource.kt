@@ -1,7 +1,7 @@
 package com.bksd.core_data.datasource
 
-import com.bksd.core_data.dto.WordServiceResponse
+import com.bksd.core_data.dto.WordDto
 
 interface WordLocalDataSource {
-    suspend fun getCachedWords(): List<WordServiceResponse>?
+    suspend fun getCachedWords(): List<WordDto>?
 }

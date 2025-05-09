@@ -23,7 +23,7 @@ fun RecentCard(
         text = "Recent Searches",
         style = MaterialTheme.typography.titleMedium
     )
-    Spacer(modifier = Modifier.height(16.dp))
+    Spacer(modifier = modifier.height(16.dp))
     FlowRow(modifier = modifier) {
         recentSearches.forEach { recent ->
             RecentSearchItem(

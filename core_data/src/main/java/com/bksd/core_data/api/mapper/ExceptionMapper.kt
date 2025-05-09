@@ -1,5 +1,6 @@
 package com.bksd.core_data.api.mapper
 
+import android.util.Log
 import com.bksd.core_domain.exception.PaymentRequiredException
 import com.bksd.core_domain.exception.UnauthorizedAccessException
 import com.bksd.core_domain.exception.WordApiClientException
@@ -13,45 +14,33 @@ import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.ServerResponseException
 import io.ktor.http.HttpStatusCode
+import io.ktor.utils.io.CancellationException
 
 /**
  * Component responsible for mapping exceptions that occur during API requests
  * to domain-specific exceptions.
  */
 class ExceptionMapper {
-    /**
-     * Maps a throwable to an appropriate API exception.
-     *
-     * @param throwable The exception to map
-     * @param word The word being processed when the exception occurred
-     * @return A domain-specific exception
-     */
-    fun mapException(throwable: Throwable, word: String? = null): Exception {
-        return when (throwable) {
-            is ClientRequestException -> mapClientException(throwable, word ?: "word :: null")
-            is ServerResponseException -> WordApiServerException(
-                "Server error: ${throwable.response.status}",
-                throwable
-            )
+    fun mapException(throwable: Throwable, word: String? = null): Exception = when (throwable) {
+        is ClientRequestException -> mapClientException(throwable, word ?: "word :: null")
+        is ServerResponseException -> WordApiServerException(
+            "Server error: ${throwable.response.status}",
+            throwable
+        )
 
-            is HttpRequestTimeoutException -> WordApiTimeoutException(20_000L)
-            is WordApiParsingException -> throwable
-            else -> WordApiNetworkException(
-                "Unexpected error during API request: ${throwable.message}",
-                throwable
-            )
-        }
+        is HttpRequestTimeoutException -> WordApiTimeoutException(20_000L)
+        is WordApiParsingException -> throwable
+        is CancellationException -> throwable
+        else -> WordApiNetworkException(
+            "Unexpected error during API request: ${throwable.message ?: "Unknown"}",
+            throwable
+        )
+    }.also {
+        Log.d("ComposeAppLogger :: ", "ExceptionMapper :: mapException: $it")
     }
 
-    /**
-     * Maps client request exceptions based on HTTP status codes.
-     *
-     * @param exception The client request exception
-     * @param word The word being processed
-     * @return A domain-specific exception
-     */
-    private fun mapClientException(exception: ClientRequestException, word: String): Exception {
-        return when (exception.response.status) {
+    private fun mapClientException(exception: ClientRequestException, word: String): Exception =
+        when (exception.response.status) {
             HttpStatusCode.NotFound -> WordNotFoundException(word)
             HttpStatusCode.Unauthorized -> UnauthorizedAccessException()
             HttpStatusCode.PaymentRequired -> PaymentRequiredException()
@@ -60,8 +49,6 @@ class ExceptionMapper {
                 "Invalid request: ${exception.message}",
                 exception
             )
-
             else -> WordApiNetworkException("API error: ${exception.response.status}", exception)
         }
-    }
 }

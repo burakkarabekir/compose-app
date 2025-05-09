@@ -20,6 +20,11 @@ sealed interface UiState<out T> {
         else -> null
     }
 
+    /**
+     * Gets the data if this state is a success
+     */
+    fun get(): T = (this as Success).data
+
     fun <R> map(transform: (T) -> R): UiState<R> {
         return when (this) {
             is Initial -> Initial

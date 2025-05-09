@@ -1,41 +1,40 @@
 package com.bksd.feature_home.ui
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bksd.core_ui.UiEvent
+import com.bksd.core_ui.UiText
+import com.bksd.core_ui.component.WordDetailCard
+import com.bksd.core_ui.model.WordDetailCardUi
+import com.bksd.feature_home.R
 import com.bksd.feature_home.ui.component.AnimatedCategoryRow
 import com.bksd.feature_home.ui.component.AppBottomNavigation
 import com.bksd.feature_home.ui.component.BottomNavItem
 import com.bksd.feature_home.ui.component.RecentCard
-import com.bksd.feature_home.ui.component.WordOfDayCard
 import com.bksd.feature_home.ui.model.RecentWordUi
-import com.bksd.feature_home.ui.model.WordOfDayUi
 import com.bksd.feature_home.ui.state.HomeScreenEvent
 import com.bksd.route.AppNavigationCommand
 import com.bksd.route.AppNavigator
@@ -74,7 +73,7 @@ fun HomeScreen(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun HomeContent(
-    wordOfDay: WordOfDayUi?,
+    wordOfDay: WordDetailCardUi?,
     selectedCategory: Int,
     onWordOfDayClick: () -> Unit,
     recentSearches: List<RecentWordUi>?,
@@ -84,54 +83,59 @@ fun HomeContent(
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
-        bottomBar = { AppBottomNavigation(selectedItem = BottomNavItem.Home, onItemSelected = {}) }
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = UiText.StringResource(id = R.string.header_app_name).asString(),
+                        modifier = modifier.padding(end = 16.dp),
+                        style = MaterialTheme.typography.headlineMedium.copy(
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Bold
+                        )
+                    )
+                },
+                actions = {
+                    IconButton(onClick = {}) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "Settings",
+                            modifier = modifier
+                                .padding(end = 12.dp)
+                                .size(28.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                },
+                modifier = modifier,
+            )
+        },
+        bottomBar = {
+            AppBottomNavigation(selectedItem = BottomNavItem.Home, onItemSelected = {
+                when (it) {
+                    BottomNavItem.Search -> onSearchClick()
+                    else -> {}
+                }
+            })
+        }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            Surface(
-                tonalElevation = 4.dp,
-                shape = RoundedCornerShape(24.dp),
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                TextField(
-                    value = "",
-                    onValueChange = { },
-                    enabled = false,
-                    readOnly = true,
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                    placeholder = { Text("Search for a word") },
-                    colors = TextFieldDefaults.colors(
-                        disabledIndicatorColor = Color.Transparent,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant
-                    ),
-                    singleLine = true,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clickable(onClick = onSearchClick)
+            // Word of the Day
+            wordOfDay?.let {
+                WordDetailCard(
+                    detailUi = it,
+                    modifier = modifier,
+                    onClick = { onWordOfDayClick() }
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Word of the Day
-            WordOfDayCard(
-                word = wordOfDay,
-                modifier = modifier,
-                onClick = { onWordOfDayClick() }
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = modifier.height(24.dp))
 
             // Category selector with animation
             AnimatedCategoryRow(
@@ -139,7 +143,7 @@ fun HomeContent(
                 onSelect = onCategorySelected
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = modifier.height(24.dp))
 
             // Recent Searches
             recentSearches?.let {

@@ -2,13 +2,12 @@ package com.bksd.core_data.repository
 
 import com.bksd.core_data.datasource.WordLocalDataSourceImpl
 import com.bksd.core_data.datasource.WordRemoteDataSource
-import com.bksd.core_data.dto.WordOfDayResponse
-import com.bksd.core_data.dto.WordServiceResponse
+import com.bksd.core_data.dto.WordDto
 import com.bksd.core_domain.exception.WordApiException
 import com.bksd.core_domain.exception.WordNotFoundException
 import com.bksd.core_domain.mapper.BaseMapper
 import com.bksd.core_domain.mapper.ListMapper
-import com.bksd.core_domain.model.WordInformation
+import com.bksd.core_domain.model.WordDetailModel
 import com.bksd.core_domain.model.WordOfDayModel
 import com.bksd.core_domain.repository.WordRepository
 import com.bksd.core_domain.result.DomainResult
@@ -24,17 +23,27 @@ import kotlinx.coroutines.flow.flow
 class WordRepositoryImpl(
     private val remoteDataSource: WordRemoteDataSource,
     private val localeDataSource: WordLocalDataSourceImpl,
-    private val mapper: BaseMapper<WordOfDayResponse, WordOfDayModel>,
-    private val listMapper: ListMapper<WordServiceResponse, WordInformation>,
-//    private val exceptionMapper: ExceptionMapper
+    private val mapper: BaseMapper<WordDto, WordOfDayModel>,
+    private val listMapper: ListMapper<WordDto, WordDetailModel>,
+    private val wordMapper: BaseMapper<WordDto, WordDetailModel>,
 ) : WordRepository {
 
-    /* override suspend fun getWordInformation(
+    override suspend fun getWordInformation(
          word: String
-     ): Flow<DomainResult<WordInformation>> = wordApiService.getWordInformation(word)
-         .map { response -> mapToWordInformation(response) }
-         .catch { throwable -> throw mapToRepositoryException(throwable, word) }
- */
+    ): Flow<DomainResult<WordDetailModel>> = flow {
+        emit(DomainResult.Loading)
+        val response = remoteDataSource.fetchWord(word)
+
+        response.getOrNull()?.let {
+            val result: WordDetailModel = try {
+                wordMapper.map(it)
+            } catch (e: Exception) {
+                emit(DomainResult.Error(e, e.message.orEmpty()))
+                return@flow
+            }
+            emit(DomainResult.Success(result))
+        } ?: emit(DomainResult.Empty)
+    }
 
     override suspend fun getWordOfDay(): Flow<DomainResult<WordOfDayModel>> = flow {
         emit(DomainResult.Loading)
@@ -51,13 +60,13 @@ class WordRepositoryImpl(
         } ?: emit(DomainResult.Empty)
     }
 
-    override suspend fun getRecentWords(): Flow<DomainResult<List<WordInformation>>> = flow {
+    override suspend fun getRecentWords(): Flow<DomainResult<List<WordDetailModel>>> = flow {
         emit(DomainResult.Loading)
         val response = localeDataSource.getCachedWords()
-            ?: listOf(WordServiceResponse("deneme"), WordServiceResponse("deneme2"))
+            ?: listOf(WordDto("deneme"), WordDto("deneme2"))
 
         response.let {
-            val result: List<WordInformation> = try {
+            val result: List<WordDetailModel> = try {
                 listMapper.map(it)
             } catch (e: Exception) {
                 emit(DomainResult.Error(e, e.message.orEmpty()))
@@ -152,23 +161,6 @@ class WordRepositoryImpl(
             )
         )
     }*/
-
-    /**
-     * Maps a WordServiceResponse to a WordInformation domain model.
-     */
-    private fun mapToWordInformation(response: WordServiceResponse): DomainResult<WordInformation> =
-        DomainResult.Success(
-            WordInformation(
-                text = response.word,
-                /* definitions = response.results.map { mapToDefinition(it) },
-                 synonyms = response.results.flatMap { it.synonyms ?: emptyList() }.distinct(),
-                 pronunciation = response.pronunciation?.all,
-                 syllables = response.syllables?.let {
-                     SyllableInfo(it.count, it.list)
-                 },
-                 frequency = response.frequency*/
-            )
-        )
 
     /**
      * Maps API exceptions to repository exceptions.

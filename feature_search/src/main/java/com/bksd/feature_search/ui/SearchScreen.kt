@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -23,10 +25,26 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.bksd.core_ui.UiEvent
+import com.bksd.core_ui.component.WordDetailCard
+import com.bksd.feature_search.ui.event.SearchScreenEvent
+import com.bksd.route.AppNavigationCommand
 import com.bksd.route.AppNavigator
+import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -34,8 +52,31 @@ import org.koin.androidx.compose.koinViewModel
 fun SearchScreen(
     navigator: AppNavigator,
     onBackClick: () -> Unit,
-    viewModel: SearchVM = koinViewModel()
+    viewModel: SearchVM = koinViewModel(),
+    modifier: Modifier = Modifier
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    val searchQuery = rememberSaveable { mutableStateOf("") }
+    val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+
+    LaunchedEffect(Unit) {
+        delay(200)
+        focusRequester.requestFocus()
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.uiEvent.collect { event ->
+            when (event) {
+                is UiEvent.Navigate -> navigator.navigate(AppNavigationCommand.Navigate(event.route))
+                is UiEvent.NavigateCall -> event.route()
+                else -> {}
+            }
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -49,7 +90,7 @@ fun SearchScreen(
         },
     ) { paddingValues ->
         Column(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(paddingValues)
@@ -59,12 +100,12 @@ fun SearchScreen(
                 tonalElevation = 4.dp,
                 shape = RoundedCornerShape(24.dp),
                 color = MaterialTheme.colorScheme.surfaceVariant,
-                modifier = Modifier
+                modifier = modifier
                     .fillMaxWidth()
             ) {
                 TextField(
-                    value = "",
-                    onValueChange = { },
+                    value = searchQuery.value,
+                    onValueChange = { searchQuery.value = it },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                     placeholder = { Text("Search for a word") },
                     colors = TextFieldDefaults.colors(
@@ -73,11 +114,28 @@ fun SearchScreen(
                         unfocusedIndicatorColor = Color.Transparent
                     ),
                     singleLine = true,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = modifier
+                        .fillMaxSize()
+                        .focusRequester(focusRequester),
+                    keyboardActions = KeyboardActions(
+                        onSearch = {
+                            keyboardController?.hide()
+                            focusManager.clearFocus()
+                            viewModel.onEvent(SearchScreenEvent.OnSearch(searchQuery.value))
+                        }
+                    ),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Search
+                    )
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = modifier.height(24.dp))
+            uiState.getOrNull()?.let {
+                WordDetailCard(detailUi = it.word) {
+
+                }
+            }
         }
     }
 }

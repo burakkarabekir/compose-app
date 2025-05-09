@@ -17,7 +17,6 @@ import com.bksd.feature_home.ui.state.HomeScreenState
 import kotlinx.coroutines.flow.map
 
 class HomeVM(
-//    private val wordUseCase: GetWordUseCase,
     private val wordOfDayUseCase: GetWordOfDayUseCase,
     private val recentWordsUseCase: GetRecentWordsUseCase,
     private val homeNavigation: HomeNavigation,

@@ -43,23 +43,24 @@ abstract class BaseWordApiService(
             "Expecting response type: ${R::class.simpleName}"
         )
         val key = pathParam?.trim()?.lowercase().takeIf { it?.isNotBlank() == true }.orEmpty()
-        Log.d("ComposeAppLogger :: BaseWordApiService", "Checking cache for: $key")
+        Log.d("ComposeAppLogger", "BaseWordApiService :: Checking cache for: $key")
 
         readFromCache<R>(endpoint, key)?.let {
-            Log.d("ComposeAppLogger :: BaseWordApiService", "Cache hit for: $key")
-            Log.d("ComposeAppLogger :: readFromCache", "expected type: ${it::class.simpleName}")
+            Log.d("ComposeAppLogger", "BaseWordApiService :: Cache hit for :: $key")
+            Log.d("ComposeAppLogger", "readFromCache :: expected type :: ${it::class.simpleName}")
             return it
         }
 
         return runCatching {
             requestExecutor.execute(endpoint, key, queryParams)
         }.mapCatching { response ->
-            Log.d("ComposeAppLogger :: ResponseMapper", "status: ${response.status}")
-            Log.d("ComposeAppLogger :: ResponseMapper", "expected type: ${R::class.simpleName}")
+            Log.d("ComposeAppLogger", "ResponseMapper :: status :: ${response.status}")
+            Log.d("ComposeAppLogger", "ResponseMapper :: expected type :: ${R::class.simpleName}")
             responseMapper.mapResponse<R>(response)
         }.onSuccess { result ->
             writeToCache(endpoint, key, result)
-            Log.d("ComposeAppLogger :: BaseWordApiService", "Fetched and cached: $key")
+
+            Log.d("ComposeAppLogger", "BaseWordApiService :: Fetched and cached :: $key")
             return result
         }.onFailure { e ->
             throw exceptionMapper.mapException(e, key)

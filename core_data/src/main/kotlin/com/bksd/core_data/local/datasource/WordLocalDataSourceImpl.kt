@@ -1,26 +1,17 @@
 package com.bksd.core_data.local.datasource
 
-import com.bksd.core_data.api.cache.InMemoryWordApiCache
-import com.bksd.core_data.api.cache.WordApiCache
-import com.bksd.core_data.config.JsonProvider
-import com.bksd.core_data.remote.dto.WordDto
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import com.bksd.core_data.local.dao.WordDao
+import com.bksd.core_data.local.entity.WordEntity
+import kotlinx.coroutines.flow.Flow
 
 class WordLocalDataSourceImpl(
-    private val cache: WordApiCache,
+    private val wordDao: WordDao
 ) : WordLocalDataSource {
-    /**
-     * Returns a list of all cached WordServiceResponse objects.
-     */
-    override suspend fun getCachedWords(): List<WordDto>? =
-        withContext(Dispatchers.IO) {
-            if (cache is InMemoryWordApiCache) {
-                cache.getAll { raw ->
-                    JsonProvider.instance.decodeFromString(WordDto.serializer(), raw)
-                }
-            } else {
-                emptyList()
-            }
-        }
+
+    override fun getRecentWords(): Flow<List<WordEntity>>? = wordDao.getRecentWords()
+    override fun getFavoriteWords(): Flow<List<WordEntity>>? = wordDao.getFavoriteWords()
+    override suspend fun getWordByName(word: String): WordEntity? = wordDao.getWordByName(word)
+    override suspend fun saveWord(word: WordEntity) = wordDao.upsert(word)
+    override suspend fun deleteWord(word: WordEntity) = wordDao.delete(word)
+    override suspend fun clearWords() = wordDao.clearAll()
 }

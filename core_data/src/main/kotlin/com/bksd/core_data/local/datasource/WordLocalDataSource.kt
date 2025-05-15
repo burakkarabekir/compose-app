@@ -1,7 +1,13 @@
 package com.bksd.core_data.local.datasource
 
-import com.bksd.core_data.remote.dto.WordDto
+import com.bksd.core_data.local.entity.WordEntity
+import kotlinx.coroutines.flow.Flow
 
 interface WordLocalDataSource {
-    suspend fun getCachedWords(): List<WordDto>?
+    fun getRecentWords(): Flow<List<WordEntity>>?
+    fun getFavoriteWords(): Flow<List<WordEntity>>?
+    suspend fun getWordByName(word: String): WordEntity?
+    suspend fun saveWord(word: WordEntity)
+    suspend fun deleteWord(word: WordEntity)
+    suspend fun clearWords()
 }

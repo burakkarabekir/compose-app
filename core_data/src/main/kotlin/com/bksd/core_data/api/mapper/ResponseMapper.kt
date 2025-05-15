@@ -37,8 +37,8 @@ class ResponseMapper {
             )
         }
 
-        Log.d("ComposeAppLogger :: ResponseMapper", "Response body: $rawText")
-        Log.d("ComposeAppLogger :: ResponseMapper", "Expected type: ${T::class.simpleName}")
+        Log.d("ComposeAppLogger", "ResponseMapper :: Response body :: $rawText")
+        Log.d("ComposeAppLogger", "ResponseMapper :: Expected type :: ${T::class.simpleName}")
 
         // Ktor’s built-in deserializer which works with your ContentNegotiation setup.
         return try {

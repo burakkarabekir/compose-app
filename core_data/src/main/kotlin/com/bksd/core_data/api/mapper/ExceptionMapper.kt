@@ -36,7 +36,7 @@ class ExceptionMapper {
             throwable
         )
     }.also {
-        Log.d("ComposeAppLogger :: ", "ExceptionMapper :: mapException: $it")
+        Log.d("ComposeAppLogger", "ExceptionMapper :: mapException: $it")
     }
 
     private fun mapClientException(exception: ClientRequestException, word: String): Exception =

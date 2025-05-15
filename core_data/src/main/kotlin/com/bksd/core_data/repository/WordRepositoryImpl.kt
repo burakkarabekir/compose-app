@@ -1,6 +1,8 @@
 package com.bksd.core_data.repository
 
-import com.bksd.core_data.local.datasource.WordLocalDataSourceImpl
+import android.util.Log
+import com.bksd.core_data.local.datasource.WordLocalDataSource
+import com.bksd.core_data.local.entity.WordEntity
 import com.bksd.core_data.remote.datasource.WordRemoteDataSource
 import com.bksd.core_data.remote.dto.WordDto
 import com.bksd.core_domain.exception.WordApiException
@@ -12,6 +14,7 @@ import com.bksd.core_domain.model.WordOfDay
 import com.bksd.core_domain.repository.WordRepository
 import com.bksd.core_domain.result.DomainResult
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 
 /**
@@ -22,15 +25,22 @@ import kotlinx.coroutines.flow.flow
  */
 class WordRepositoryImpl(
     private val remoteDataSource: WordRemoteDataSource,
-    private val localeDataSource: WordLocalDataSourceImpl,
+    private val localeDataSource: WordLocalDataSource,
     private val mapper: BaseMapper<WordDto, WordOfDay>,
-    private val listMapper: ListMapper<WordDto, WordDetail>,
+    private val recentWordsMapper: ListMapper<WordEntity, WordDetail>,
+    private val wordEntityToModelMapper: BaseMapper<WordEntity, WordDetail>,
+    private val wordDtoToEntityMapper: BaseMapper<WordDto, WordEntity>,
     private val wordMapper: BaseMapper<WordDto, WordDetail>,
 ) : WordRepository {
 
-    override suspend fun getWordInformation(
+    override suspend fun fetchWord(
          word: String
     ): Flow<DomainResult<WordDetail>> = flow {
+        localeDataSource.getWordByName(word)?.let {
+            emit(DomainResult.Success(wordEntityToModelMapper.map(it)))
+            Log.d("ComposeAppLogger", "fetchWord :: cache :: $word")
+            return@flow
+        }
         emit(DomainResult.Loading)
         val response = remoteDataSource.fetchWord(word)
 
@@ -41,6 +51,7 @@ class WordRepositoryImpl(
                 emit(DomainResult.Error(e, e.message.orEmpty()))
                 return@flow
             }
+            localeDataSource.saveWord(wordDtoToEntityMapper.map(it))
             emit(DomainResult.Success(result))
         } ?: emit(DomainResult.Empty)
     }
@@ -62,12 +73,11 @@ class WordRepositoryImpl(
 
     override suspend fun getRecentWords(): Flow<DomainResult<List<WordDetail>>> = flow {
         emit(DomainResult.Loading)
-        val response = localeDataSource.getCachedWords()
-            ?: listOf(WordDto("deneme"), WordDto("deneme2"))
+        val recentWordList = localeDataSource.getRecentWords()
 
-        response.let {
+        recentWordList?.firstOrNull()?.let {
             val result: List<WordDetail> = try {
-                listMapper.map(it)
+                recentWordsMapper.map(it)
             } catch (e: Exception) {
                 emit(DomainResult.Error(e, e.message.orEmpty()))
                 return@flow

@@ -13,5 +13,5 @@ class GetWordUseCase(
     data class Params(val word: String)
 
     override suspend fun invoke(params: Params): Flow<DomainResult<WordDetail>> =
-        repository.getWordInformation(params.word)
+        repository.fetchWord(params.word)
 }

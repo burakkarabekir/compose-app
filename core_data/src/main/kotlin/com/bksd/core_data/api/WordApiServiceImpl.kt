@@ -20,10 +20,10 @@ class WordApiServiceImpl(
     cache: WordApiCache
 ) : BaseWordApiService(requestExecutor, responseMapper, exceptionMapper, cache), WordApiService {
 
-    override suspend fun getWordInformation(word: String): WordDto =
+    override suspend fun fetchWord(word: String): WordDto =
         fetch(ENDPOINT_WORD, pathParam = word)
 
-    override suspend fun getWordOfDay(): WordDto =
+    override suspend fun fetchWordOfDay(): WordDto =
         fetch(
             endpoint = ENDPOINT_WORD,
             queryParams = mapOf(KEY_QUERY_PARAM_RANDOM to VALUE_QUERY_PARAM_RANDOM)
@@ -51,6 +51,5 @@ class WordApiServiceImpl(
     companion object {
         private const val KEY_QUERY_PARAM_RANDOM = "random"
         private const val VALUE_QUERY_PARAM_RANDOM = "true"
-
     }
 }

@@ -8,8 +8,8 @@ class WordRemoteDataSourceImpl(
     private val api: WordApiService,
 ) : WordRemoteDataSource {
     override suspend fun fetchWord(word: String): DataState<WordDto> =
-        DataState.Success(api.getWordInformation(word))
+        DataState.Success(api.fetchWord(word))
 
     override suspend fun fetchWordOfDay(): DataState<WordDto> =
-        DataState.Success(api.getWordOfDay())
+        DataState.Success(api.fetchWordOfDay())
 }

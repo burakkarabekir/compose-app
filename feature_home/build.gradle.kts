@@ -38,8 +38,8 @@ android {
 
 dependencies {
     implementation(project(":route"))
-    implementation(project(":core_ui"))
-    implementation(project(":core_domain"))
+    implementation(project(":word_ui"))
+    implementation(project(":word_domain"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

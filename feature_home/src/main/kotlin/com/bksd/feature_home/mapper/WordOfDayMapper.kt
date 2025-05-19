@@ -1,12 +1,12 @@
 package com.bksd.feature_home.mapper
 
 import com.bksd.core_domain.mapper.BaseMapper
-import com.bksd.core_domain.model.WordOfDay
 import com.bksd.core_domain.result.DomainResult
 import com.bksd.core_ui.UiState
-import com.bksd.core_ui.model.WordDetailUi
-import com.bksd.core_ui.model.WordOfDayDetailCardUi
 import com.bksd.feature_home.ui.state.HomeScreenState
+import com.bksd.word_domain.model.WordOfDay
+import com.bksd.word_ui.model.WordDetailUi
+import com.bksd.word_ui.model.WordOfDayDetailCardUi
 
 /**
  * Mapper to convert WordOfDayModel (domain) to WordOfDayUi (UI) model.

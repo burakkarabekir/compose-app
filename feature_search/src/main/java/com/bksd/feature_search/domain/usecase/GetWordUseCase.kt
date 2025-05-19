@@ -1,9 +1,9 @@
 package com.bksd.feature_search.domain.usecase
 
-import com.bksd.core_domain.model.WordDetail
-import com.bksd.core_domain.repository.WordRepository
 import com.bksd.core_domain.result.DomainResult
 import com.bksd.core_domain.usecase.FlowUseCase
+import com.bksd.word_domain.model.WordDetail
+import com.bksd.word_domain.repository.WordRepository
 import kotlinx.coroutines.flow.Flow
 
 class GetWordUseCase(

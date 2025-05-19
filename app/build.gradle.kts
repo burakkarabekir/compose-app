@@ -43,9 +43,10 @@ android {
 dependencies {
     implementation(project(":feature_home"))
     implementation(project(":feature_search"))
+    implementation(project(":word_data"))
+    implementation(project(":word_domain"))
+    implementation(project(":word_ui"))
     implementation(project(":core_data"))
-    implementation(project(":core_domain"))
-    implementation(project(":core_ui"))
     implementation(project(path = ":route"))
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

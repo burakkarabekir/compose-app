@@ -27,8 +27,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bksd.core_ui.UiEvent
 import com.bksd.core_ui.UiText
-import com.bksd.core_ui.component.WordDetailCard
-import com.bksd.core_ui.model.WordDetailUi
 import com.bksd.feature_home.R
 import com.bksd.feature_home.ui.component.AnimatedCategoryRow
 import com.bksd.feature_home.ui.component.AppBottomNavigation
@@ -38,6 +36,8 @@ import com.bksd.feature_home.ui.model.RecentWordUi
 import com.bksd.feature_home.ui.state.HomeScreenEvent
 import com.bksd.route.AppNavigationCommand
 import com.bksd.route.AppNavigator
+import com.bksd.word_ui.component.WordDetailCard
+import com.bksd.word_ui.model.WordDetailUi
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)

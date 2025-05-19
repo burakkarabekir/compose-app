@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.serialization)
-    alias(libs.plugins.ksp)
 }
 
 fun getProperties(fileName: String): Properties {
@@ -70,6 +69,7 @@ dependencies {
     implementation(project(":core_domain"))
 
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.room.ktx)
 
     // Ktor
     implementation(libs.ktor.client.core)
@@ -90,10 +90,6 @@ dependencies {
 
     // Koin
     implementation(libs.koin.android)
-
-    // Room
-    ksp(libs.room.compiler)
-    implementation(libs.androidx.room.ktx)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

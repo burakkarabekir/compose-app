@@ -2,7 +2,6 @@ package com.bksd.core_data.api.executor
 
 import com.bksd.core_data.BuildConfig
 import com.bksd.core_data.config.JsonProvider
-import com.bksd.core_data.config.WordApiConfig
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation

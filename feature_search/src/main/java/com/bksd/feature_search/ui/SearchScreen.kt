@@ -40,10 +40,10 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bksd.core_ui.UiEvent
-import com.bksd.core_ui.component.WordDetailCard
 import com.bksd.feature_search.ui.event.SearchScreenEvent
 import com.bksd.route.AppNavigationCommand
 import com.bksd.route.AppNavigator
+import com.bksd.word_ui.component.WordDetailCard
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 

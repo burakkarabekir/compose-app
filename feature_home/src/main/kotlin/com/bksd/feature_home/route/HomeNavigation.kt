@@ -1,9 +1,9 @@
 package com.bksd.feature_home.route
 
-import com.bksd.core_ui.model.WordDetailUi
 import com.bksd.route.AppNavigationCommand
 import com.bksd.route.AppNavigator
 import com.bksd.route.AppRoutes
+import com.bksd.word_ui.model.WordDetailUi
 
 interface HomeNavigation {
     fun navigateToWordOfDayDetail(wordOfDayUi: WordDetailUi)

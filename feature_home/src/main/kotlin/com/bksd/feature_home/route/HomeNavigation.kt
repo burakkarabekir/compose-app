@@ -1,12 +1,12 @@
 package com.bksd.feature_home.route
 
-import com.bksd.core_ui.model.WordDetailCardUi
+import com.bksd.core_ui.model.WordDetailUi
 import com.bksd.route.AppNavigationCommand
 import com.bksd.route.AppNavigator
 import com.bksd.route.AppRoutes
 
 interface HomeNavigation {
-    fun navigateToWordOfDayDetail(wordOfDayUi: WordDetailCardUi)
+    fun navigateToWordOfDayDetail(wordOfDayUi: WordDetailUi)
     fun navigateToSearch()
 }
 
@@ -14,7 +14,7 @@ class HomeNavigationImpl(
     private val navigator: AppNavigator
 ) : HomeNavigation {
 
-    override fun navigateToWordOfDayDetail(wordOfDayUi: WordDetailCardUi) {
+    override fun navigateToWordOfDayDetail(wordOfDayUi: WordDetailUi) {
         navigator.navigate(
             AppNavigationCommand.Navigate(
                 AppRoutes.WordDetail.withArgs(wordOfDayUi.word, wordOfDayUi.pronunciation.orEmpty())

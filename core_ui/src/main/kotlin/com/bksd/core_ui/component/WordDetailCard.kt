@@ -14,14 +14,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.bksd.core_ui.model.WordDetailCardUi
+import com.bksd.core_ui.model.WordDetailUi
+import com.bksd.core_ui.model.WordOfDayDetailCardUi
 
 /**
  * WordDetailCard: shows the word of the day with pronunciation and a snippet, clickable.
  */
 @Composable
 fun WordDetailCard(
-    detailUi: WordDetailCardUi,
+    detailUi: WordDetailUi,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
@@ -36,9 +37,9 @@ fun WordDetailCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(modifier = modifier.padding(16.dp)) {
-            detailUi.label?.let {
+            if (detailUi is WordOfDayDetailCardUi) {
                 Text(
-                    text = it,
+                    text = detailUi.label,
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )

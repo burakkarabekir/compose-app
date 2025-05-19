@@ -4,20 +4,21 @@ import com.bksd.core_domain.mapper.BaseMapper
 import com.bksd.core_domain.model.WordOfDay
 import com.bksd.core_domain.result.DomainResult
 import com.bksd.core_ui.UiState
-import com.bksd.core_ui.model.WordDetailCardUi
+import com.bksd.core_ui.model.WordDetailUi
+import com.bksd.core_ui.model.WordOfDayDetailCardUi
 import com.bksd.feature_home.ui.state.HomeScreenState
 
 /**
  * Mapper to convert WordOfDayModel (domain) to WordOfDayUi (UI) model.
  * Adds a default label and maintains other properties.
  */
-class WordOfDayMapper : BaseMapper<WordOfDay, WordDetailCardUi> {
+class WordOfDayMapper : BaseMapper<WordOfDay, WordDetailUi> {
 
     companion object {
         private const val DEFAULT_LABEL = "Word of the Day"
     }
 
-    override fun map(model: WordOfDay): WordDetailCardUi = WordDetailCardUi(
+    override fun map(model: WordOfDay): WordDetailUi = WordOfDayDetailCardUi(
         label = DEFAULT_LABEL,
         word = model.word.orEmpty(),
         pronunciation = model.pronunciation.orEmpty(),

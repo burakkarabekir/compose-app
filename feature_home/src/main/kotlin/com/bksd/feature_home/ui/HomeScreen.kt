@@ -28,7 +28,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bksd.core_ui.UiEvent
 import com.bksd.core_ui.UiText
 import com.bksd.core_ui.component.WordDetailCard
-import com.bksd.core_ui.model.WordDetailCardUi
+import com.bksd.core_ui.model.WordDetailUi
 import com.bksd.feature_home.R
 import com.bksd.feature_home.ui.component.AnimatedCategoryRow
 import com.bksd.feature_home.ui.component.AppBottomNavigation
@@ -73,7 +73,7 @@ fun HomeScreen(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun HomeContent(
-    wordOfDay: WordDetailCardUi?,
+    wordOfDay: WordDetailUi?,
     selectedCategory: Int,
     onWordOfDayClick: () -> Unit,
     recentSearches: List<RecentWordUi>?,

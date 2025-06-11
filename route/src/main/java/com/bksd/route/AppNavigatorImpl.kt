@@ -13,7 +13,7 @@ class AppNavigatorImpl(
         context = SupervisorJob() + Dispatchers.Main.immediate
     )
 ) : AppNavigator {
-    private val _navigation = Channel<AppNavigationCommand>()
+    private val _navigation = Channel<AppNavigationCommand>(Channel.BUFFERED)
     override val navigation = _navigation.receiveAsFlow()
 
     override fun navigate(command: AppNavigationCommand) {

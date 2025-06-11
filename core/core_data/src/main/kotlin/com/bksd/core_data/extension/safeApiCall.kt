@@ -1,17 +1,17 @@
 package com.bksd.core_data.extension
 
-import com.bksd.core_data.model.NetworkResponse
+import com.bksd.core_data.model.NetworkResult
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.ServerResponseException
 
 suspend fun <T> safeApiCall(
     apiCall: suspend () -> T
-): NetworkResponse<T> = try {
-    NetworkResponse.Success(apiCall())
+): NetworkResult<T> = try {
+    NetworkResult.Success(apiCall())
 } catch (e: ClientRequestException) {
-    NetworkResponse.Error(e.response.status.value, e.message)
+    NetworkResult.Error(e.response.status.value, e.message)
 } catch (e: ServerResponseException) {
-    NetworkResponse.Error(e.response.status.value, e.message)
+    NetworkResult.Error(e.response.status.value, e.message)
 } catch (e: Exception) {
-    NetworkResponse.Error(message = e.message)
+    NetworkResult.Error(message = e.message)
 }

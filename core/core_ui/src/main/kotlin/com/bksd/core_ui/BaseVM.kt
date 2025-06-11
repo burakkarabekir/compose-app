@@ -18,7 +18,7 @@ abstract class BaseVM<S, E>(initialState: UiState<S>) : ViewModel() {
     protected val _uiState = MutableStateFlow<UiState<S>>(initialState)
     val uiState = _uiState.asStateFlow()
 
-    private val _uiEvent = Channel<UiEvent>()
+    private val _uiEvent = Channel<UiEvent>(Channel.BUFFERED)
     val uiEvent = _uiEvent.receiveAsFlow()
 
     /**

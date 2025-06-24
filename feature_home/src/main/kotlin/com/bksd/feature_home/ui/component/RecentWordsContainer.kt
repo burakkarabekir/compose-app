@@ -14,7 +14,7 @@ import com.bksd.feature_home.ui.model.RecentWordUi
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun RecentCard(
+fun RecentWordsContainer(
     recentSearches: List<RecentWordUi>,
     onRecentSearchClick: (String) -> Unit,
     modifier: Modifier

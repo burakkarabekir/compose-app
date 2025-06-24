@@ -37,6 +37,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.bksd.core_ui.theme.AppTheme
 
 /**
  * AnimatedCategoryRow: displays a row of categories with a sliding highlight.
@@ -86,7 +87,7 @@ fun AnimatedCategoryRow(
                 .width(capsuleWidth)
                 .fillMaxHeight()
                 .background(
-                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    color = AppTheme.colorScheme.secondary,
                     shape = RoundedCornerShape(20.dp)
                 )
         )

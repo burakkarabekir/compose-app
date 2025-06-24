@@ -2,38 +2,24 @@ package com.bksd.feature_home.route
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.navigation
 import com.bksd.feature_home.ui.HomeScreen
 import com.bksd.feature_home.ui.WordDetailScreen
-import com.bksd.route.AppNavigator
-import com.bksd.route.AppRoutes
-import com.bksd.route.AppRoutes.Companion.decode
+import com.bksd.route.MainGraph
+import com.bksd.route.WordDetailGraph
 
-fun NavGraphBuilder.homeNavGraph(navigator: AppNavigator) {
-    composable(
-        route = AppRoutes.Home.route
-    ) {
-        HomeScreen(navigator = navigator)
+fun NavGraphBuilder.homeNavGraph() {
+    composable<MainGraph.HomeScreenRoute>{
+        HomeScreen()
     }
 }
 
-fun NavGraphBuilder.wordDetailNavGraph(navigator: AppNavigator) {
-    composable(
-        route = AppRoutes.WordDetail.route,
-        arguments = AppRoutes.WordDetail.arguments
-    ) { backStackEntry ->
-        val word = backStackEntry.arguments?.getString("word")?.decode().orEmpty()
-        val pronunciation = backStackEntry.arguments?.getString("pronunciation")?.decode().orEmpty()
-
-        WordDetailScreen(
-            word = word,
-            pronunciation = pronunciation,
-            definition = "definition",
-            synonyms = listOf("synonyms"),
-            antonyms = listOf("antonyms"),
-            isFavorite = false,
-            onBackClick = { navigator.navigateBack() },
-            onFavoriteClick = { },
-            onPlayAudioClick = { }
-        )
+fun NavGraphBuilder.wordDetailGraph() {
+    navigation<WordDetailGraph.WordDetailGraphRoute>(
+        startDestination = WordDetailGraph.WordDetailScreenRoute()
+    ) {
+        composable<WordDetailGraph.WordDetailScreenRoute>{
+            WordDetailScreen()
+        }
     }
 }

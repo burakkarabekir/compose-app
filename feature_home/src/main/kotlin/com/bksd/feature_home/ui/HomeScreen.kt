@@ -19,68 +19,93 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.bksd.core_ui.UiEvent
 import com.bksd.core_ui.UiText
+import com.bksd.core_ui.extension.CollectFlowAsEvent
+import com.bksd.core_ui.theme.AppDimensions.spacingExtraLarge
+import com.bksd.core_ui.theme.AppDimensions.spacingMedium
+import com.bksd.core_ui.theme.AppTheme
 import com.bksd.feature_home.R
 import com.bksd.feature_home.ui.component.AnimatedCategoryRow
-import com.bksd.feature_home.ui.component.AppBottomNavigation
-import com.bksd.feature_home.ui.component.BottomNavItem
-import com.bksd.feature_home.ui.component.RecentCard
+import com.bksd.feature_home.ui.component.RecentWordsContainer
 import com.bksd.feature_home.ui.model.RecentWordUi
 import com.bksd.feature_home.ui.state.HomeScreenEvent
-import com.bksd.route.AppNavigationCommand
+import com.bksd.feature_home.ui.state.HomeScreenUi
 import com.bksd.route.AppNavigator
+import com.bksd.route.WordDetailGraph
+import com.bksd.word_ui.component.LoadingOverlay
 import com.bksd.word_ui.component.WordDetailCard
-import com.bksd.word_ui.model.WordDetailUi
+import com.bksd.word_ui.model.WordOfDayDetailCardUi
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    navigator: AppNavigator,
-    viewModel: HomeVM = koinViewModel()
+    viewModel: HomeStore = koinViewModel(),
+    navigator: AppNavigator = koinInject(),
+    coroutineScope: CoroutineScope = rememberCoroutineScope()
 ) {
-
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
-    LaunchedEffect(Unit) {
-        viewModel.uiEvent.collect { event ->
-            when (event) {
-                is UiEvent.Navigate -> navigator.navigate(AppNavigationCommand.Navigate(event.route))
-                is UiEvent.NavigateCall -> event.route()
-                else -> {}
-            }
+    when {
+        uiState.isLoading -> {
+            LoadingOverlay()
+        }
+        else -> {
+            HomeContent(
+                uiModel = uiState.uiModel,
+                selectedCategory = uiState.selectedCategory,
+                onEvent = viewModel::onEvent,
+                modifier = Modifier
+            )
         }
     }
 
-    HomeContent(
-        onSearchClick = { viewModel.onEvent(HomeScreenEvent.OnSearch) },
-        wordOfDay = uiState.getOrNull()?.wordOfDay,
-        onWordOfDayClick = { viewModel.onEvent(HomeScreenEvent.OnWordOfDayClick) },
-        selectedCategory = uiState.getOrNull()?.selectedCategory ?: 0,
-        onCategorySelected = { viewModel.onEvent(HomeScreenEvent.OnCategorySelected(it)) },
-        recentSearches = uiState.getOrNull()?.recentSearches,
-        onRecentSearchClick = { viewModel.onEvent(HomeScreenEvent.OnRecentSearchClick(it)) },
-    )
+    CollectFlowAsEvent(viewModel.uiEffect) { effect ->
+        when (effect) {
+            is HomeScreenEffect.NavigateToCategory -> Unit
+            is HomeScreenEffect.NavigateToRecentSearchDetails -> {
+                coroutineScope.launch {
+                    navigator.navigate(
+                        WordDetailGraph.WordDetailScreenRoute(
+                            word = uiState.uiModel.recentSearches
+                                ?.find { it.text == effect.queryOrId }
+                                ?.text.orEmpty()
+                        )
+                    )
+                }
+            }
+
+            is HomeScreenEffect.NavigateToWordDetails -> {
+                coroutineScope.launch {
+                    navigator.navigate(
+                        WordDetailGraph.WordDetailScreenRoute(
+                            word = uiState.uiModel.wordOfDay?.word.orEmpty()
+                        )
+                    )
+                }
+            }
+
+            is HomeScreenEffect.ShowMessage -> Unit
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun HomeContent(
-    wordOfDay: WordDetailUi?,
+    uiModel: HomeScreenUi,
     selectedCategory: Int,
-    onWordOfDayClick: () -> Unit,
-    recentSearches: List<RecentWordUi>?,
-    onCategorySelected: (Int) -> Unit,
-    onSearchClick: () -> Unit,
-    onRecentSearchClick: (String) -> Unit,
     modifier: Modifier = Modifier,
+    onEvent: (HomeScreenEvent) -> Unit = {},
 ) {
     Scaffold(
         topBar = {
@@ -88,9 +113,9 @@ fun HomeContent(
                 title = {
                     Text(
                         text = UiText.StringResource(id = R.string.header_app_name).asString(),
-                        modifier = modifier.padding(end = 16.dp),
+                        modifier = modifier.padding(end = spacingMedium),
                         style = MaterialTheme.typography.headlineMedium.copy(
-                            color = MaterialTheme.colorScheme.primary,
+                            color = AppTheme.colorScheme.primary,
                             fontWeight = FontWeight.Bold
                         )
                     )
@@ -99,24 +124,17 @@ fun HomeContent(
                     IconButton(onClick = {}) {
                         Icon(
                             imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings",
+                            contentDescription = UiText.StringResource(id = R.string.settings)
+                                .asString(),
                             modifier = modifier
                                 .padding(end = 12.dp)
                                 .size(28.dp),
-                            tint = MaterialTheme.colorScheme.primary
+                            tint = AppTheme.colorScheme.primary
                         )
                     }
                 },
                 modifier = modifier,
             )
-        },
-        bottomBar = {
-            AppBottomNavigation(selectedItem = BottomNavItem.Home, onItemSelected = {
-                when (it) {
-                    BottomNavItem.Search -> onSearchClick()
-                    else -> {}
-                }
-            })
         }
     ) { paddingValues ->
         Column(
@@ -127,11 +145,11 @@ fun HomeContent(
                 .padding(16.dp)
         ) {
             // Word of the Day
-            wordOfDay?.let {
+            uiModel.wordOfDay?.let {
                 WordDetailCard(
                     detailUi = it,
                     modifier = modifier,
-                    onClick = { onWordOfDayClick() }
+                    onClick = { onEvent(HomeScreenEvent.OnWordOfDayClick(it.word.orEmpty())) }
                 )
             }
 
@@ -140,19 +158,45 @@ fun HomeContent(
             // Category selector with animation
             AnimatedCategoryRow(
                 selectedIndex = selectedCategory,
-                onSelect = onCategorySelected
+                onSelect = { index -> onEvent(HomeScreenEvent.OnCategorySelected(index)) }
             )
 
-            Spacer(modifier = modifier.height(24.dp))
+            Spacer(modifier = modifier.height(spacingExtraLarge))
 
             // Recent Searches
-            recentSearches?.let {
-                RecentCard(
-                    recentSearches = it,
-                    onRecentSearchClick = onRecentSearchClick,
+            uiModel.recentSearches?.let { recentSearches ->
+                RecentWordsContainer(
+                    recentSearches = recentSearches,
+                    onRecentSearchClick = { word -> onEvent(HomeScreenEvent.OnRecentSearchClick(word)) },
                     modifier = modifier
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true, name = "Home Content Preview")
+@Composable
+fun HomeContentPreview() {
+    AppTheme {
+        HomeContent(
+            uiModel = HomeScreenUi(
+                wordOfDay = WordOfDayDetailCardUi(
+                    word = "Test",
+                    definition = "",
+                    synonyms = listOf(),
+                    antonyms = listOf(),
+                    isFavorite = false,
+                    label = "Word Of The Day"
+
+                ),
+                recentSearches = listOf(
+                    RecentWordUi("Compose"),
+                    RecentWordUi("Compose"),
+                    RecentWordUi("Compose"),
+                )
+            ),
+            selectedCategory = 0,
+        )
     }
 }

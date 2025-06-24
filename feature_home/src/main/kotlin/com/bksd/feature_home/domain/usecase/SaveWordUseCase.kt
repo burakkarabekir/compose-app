@@ -9,7 +9,7 @@ import com.bksd.core_domain.repository.WordRepository
 class SaveWordUseCase(
     private val repository: WordRepository
 ) {
-    suspend operator fun invoke(word: Word) {
-        localDataSource.saveWord(word.toEntity())
+    suspend operator fun invoke(wordOfDay: Word) {
+        localDataSource.saveWord(wordOfDay.toEntity())
     }
 }*/

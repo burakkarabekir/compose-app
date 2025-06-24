@@ -13,7 +13,6 @@ class WordDetailMapper : BaseMapper<WordDetail, WordDetailUi> {
 
     override fun map(from: WordDetail): WordDetailUi = WordDetailCardUi(
         word = from.text,
-//        pronunciation = from.pronunciation,
         definition = from.definition,
         synonyms = from.synonyms,
         antonyms = from.antonyms,

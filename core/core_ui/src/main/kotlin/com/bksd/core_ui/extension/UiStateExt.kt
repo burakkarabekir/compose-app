@@ -11,15 +11,10 @@ import kotlinx.coroutines.flow.map
  * This is typically used when crossing the boundary from domain layer to UI layer.
  */
 private fun <T : Any, U : Any> DomainResult<T>.toUiState(map: (T) -> U): UiState<U> = when (this) {
-    is DomainResult.Loading -> UiState.Loading
-    is DomainResult.Empty -> UiState.Empty
-    is DomainResult.Success -> UiState.Success(map(data))
-    is DomainResult.Error -> {
-        // val errorType = determineErrorType(exception)
-        UiState.Error(
-            message = message
-        )
-    }
+    is DomainResult.Loading -> loadingUiState()
+    is DomainResult.Empty -> emptyUiState()
+    is DomainResult.Success -> successUiState(map(data))
+    is DomainResult.Error -> errorUiState(message)
 }
 
 fun <T : Any, U : Any> DomainResult<T>.toUiState(mapper: BaseMapper<T, U>): UiState<U> =
@@ -45,6 +40,10 @@ fun <T : Any, R : Any> Flow<DomainResult<T>>.toUiState(mapper: BaseMapper<T, R>)
 fun <T> initialUiState(): UiState<T> = UiState.Initial
 
 /**
+ * Create a empty UiState.
+ */
+fun <T> emptyUiState(): UiState<T> = UiState.Empty
+/**
  * Create a loading UiState.
  */
 fun <T> loadingUiState(): UiState<T> = UiState.Loading
@@ -53,3 +52,9 @@ fun <T> loadingUiState(): UiState<T> = UiState.Loading
  * Create a success UiState with the provided data.
  */
 fun <T> successUiState(data: T): UiState<T> = UiState.Success(data)
+
+/**
+ * Create an error UiState with the provided error message.
+ * @param message The error message to be included in the error state
+ */
+fun <T> errorUiState(message: String): UiState<T> = UiState.Error(message)

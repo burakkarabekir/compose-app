@@ -23,6 +23,9 @@ interface WordDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(word: WordEntity)
 
+    @Query("UPDATE words SET isFavorite = :isFavorite WHERE word = :word")
+    suspend fun updateFavoriteStatus(word: String, isFavorite: Boolean)
+
     @Delete
     suspend fun delete(word: WordEntity)
 

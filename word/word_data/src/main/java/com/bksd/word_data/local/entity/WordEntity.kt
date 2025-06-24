@@ -7,7 +7,8 @@ import androidx.room.PrimaryKey
 data class WordEntity(
     @PrimaryKey val word: String,
     val definition: String?,
-    val pronunciation: String?,
     val isFavorite: Boolean = false,
+    val synonyms: List<String>? = emptyList(),
+    val antonyms: List<String>? = emptyList(),
     val timestamp: Long = System.currentTimeMillis() // for recent sort
 )

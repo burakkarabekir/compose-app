@@ -8,7 +8,8 @@ class WordDtoToEntityMapper : BaseMapper<WordDto, WordEntity> {
     override fun map(dto: WordDto): WordEntity = WordEntity(
         word = dto.word.orEmpty(),
         definition = dto.results?.firstOrNull()?.definition.orEmpty(),
-        pronunciation = dto.pronunciation?.all.orEmpty(),
+        synonyms = dto.results?.firstOrNull()?.synonyms.orEmpty(),
+        antonyms =dto.results?.firstOrNull()?.antonyms.orEmpty(),
         timestamp = System.currentTimeMillis()
     )
 }

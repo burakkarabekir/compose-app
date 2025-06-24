@@ -8,6 +8,8 @@ interface WordLocalDataSource {
     fun getFavoriteWords(): Flow<List<WordEntity>>?
     suspend fun getWordByName(word: String): WordEntity?
     suspend fun saveWord(word: WordEntity)
+    suspend fun updateFavoriteStatus(word: String, isFavorite: Boolean)
     suspend fun deleteWord(word: WordEntity)
+
     suspend fun clearWords()
 }

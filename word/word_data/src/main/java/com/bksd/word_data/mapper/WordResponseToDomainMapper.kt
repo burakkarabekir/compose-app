@@ -12,6 +12,6 @@ class WordResponseToDomainMapper : BaseMapper<WordDto, WordOfDay> {
         definition = dto.results?.firstOrNull()?.definition,
         synonyms = dto.results?.firstOrNull()?.synonyms,
         antonyms = dto.results?.firstOrNull()?.antonyms,
-        pronunciation = dto.pronunciation?.all
+        isFavorite = dto.isFavorite
     )
 }

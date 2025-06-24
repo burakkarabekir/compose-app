@@ -13,7 +13,9 @@ import com.bksd.word_data.remote.dto.WordDto
 import com.bksd.word_domain.model.WordDetail
 import com.bksd.word_domain.model.WordOfDay
 import com.bksd.word_domain.repository.WordRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 
@@ -36,12 +38,12 @@ class WordRepositoryImpl(
     override suspend fun fetchWord(
          word: String
     ): Flow<DomainResult<WordDetail>> = flow {
+        emit(DomainResult.Loading)
         localeDataSource.getWordByName(word)?.let {
             emit(DomainResult.Success(wordEntityToModelMapper.map(it)))
             Log.d("ComposeAppLogger", "fetchWord :: cache :: $word")
             return@flow
         }
-        emit(DomainResult.Loading)
         val response = remoteDataSource.fetchWord(word)
 
         response.getOrNull()?.let {
@@ -56,6 +58,10 @@ class WordRepositoryImpl(
         } ?: emit(DomainResult.Empty)
     }
 
+    override suspend fun setWordFavorite(word: String, isFavorite: Boolean) {
+        localeDataSource.updateFavoriteStatus(word, isFavorite)
+    }
+
     override suspend fun getWordOfDay(): Flow<DomainResult<WordOfDay>> = flow {
         emit(DomainResult.Loading)
         val response = remoteDataSource.fetchWordOfDay()
@@ -67,8 +73,22 @@ class WordRepositoryImpl(
                 emit(DomainResult.Error(e, e.message.orEmpty()))
                 return@flow
             }
+            localeDataSource.saveWord(wordDtoToEntityMapper.map(it))
             emit(DomainResult.Success(result))
         } ?: emit(DomainResult.Empty)
+    }
+
+    override suspend fun getWordDetail(word: String): Flow<DomainResult<WordDetail>> = flow {
+        emit(DomainResult.Loading)
+        val cachedWordEntity = localeDataSource.getWordByName(word)
+
+        cachedWordEntity?.let {
+            delay(200)
+            emit(DomainResult.Success(wordEntityToModelMapper.map(it)))
+            Log.d("ComposeAppLogger", "getWordDetail :: cache :: $word")
+            return@flow
+        }
+        fetchWord(word).collect()
     }
 
     override suspend fun getRecentWords(): Flow<DomainResult<List<WordDetail>>> = flow {

@@ -6,10 +6,10 @@ import com.bksd.word_domain.model.WordDetail
 
 class WordDtoToDomainMapper : BaseMapper<WordDto, WordDetail> {
     override fun map(dto: WordDto): WordDetail = WordDetail(
-        text = dto.word.orEmpty(),
-        pronunciation = dto.pronunciation?.all,
+        text = dto.word,
         definition = dto.results?.firstOrNull()?.definition,
         synonyms = dto.results?.firstOrNull()?.synonyms,
-        antonyms = dto.results?.firstOrNull()?.antonyms
+        antonyms = dto.results?.firstOrNull()?.antonyms,
+        isFavorite = dto.isFavorite
     )
 }

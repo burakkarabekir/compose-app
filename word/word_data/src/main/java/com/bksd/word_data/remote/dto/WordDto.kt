@@ -1,5 +1,6 @@
 package com.bksd.word_data.remote.dto
 
+import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
 
 /**
@@ -8,12 +9,11 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class WordDto(
-    val word: String? = null,
+    @PrimaryKey val word: String,
     val results: List<ResultDto>? = null,
     val syllables: SyllablesDto? = null,
-    val pronunciation: PronunciationDto? = null,
     val frequency: Double? = null,
-    val rhymes: RhymesDto? = null
+    val isFavorite: Boolean = false
 )
 
 

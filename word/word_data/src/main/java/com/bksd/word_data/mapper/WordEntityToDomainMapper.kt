@@ -10,10 +10,10 @@ class WordEntityToDomainListMapper : ListMapper<WordEntity, WordDetail> {
         entities.map { entity ->
             WordDetail(
                 text = entity.word,
-                pronunciation = entity.pronunciation,
                 definition = entity.definition,
-                synonyms = emptyList(),
-                antonyms = emptyList()
+                synonyms = entity.synonyms,
+                antonyms = entity.antonyms,
+                isFavorite = entity.isFavorite
             )
         }
 }
@@ -22,9 +22,9 @@ class WordEntityToDomainMapper : BaseMapper<WordEntity, WordDetail> {
     override fun map(entity: WordEntity): WordDetail =
         WordDetail(
             text = entity.word,
-            pronunciation = entity.pronunciation,
             definition = entity.definition,
-            synonyms = emptyList(),
-            antonyms = emptyList()
+            synonyms = entity.synonyms,
+            antonyms = entity.antonyms,
+            isFavorite = entity.isFavorite
         )
 }

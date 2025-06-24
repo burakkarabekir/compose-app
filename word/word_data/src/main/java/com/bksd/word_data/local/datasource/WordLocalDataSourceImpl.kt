@@ -12,6 +12,9 @@ class WordLocalDataSourceImpl(
     override fun getFavoriteWords(): Flow<List<WordEntity>>? = wordDao.getFavoriteWords()
     override suspend fun getWordByName(word: String): WordEntity? = wordDao.getWordByName(word)
     override suspend fun saveWord(word: WordEntity) = wordDao.upsert(word)
+    override suspend fun updateFavoriteStatus(word: String, isFavorite: Boolean) =
+        wordDao.updateFavoriteStatus(word, isFavorite)
+
     override suspend fun deleteWord(word: WordEntity) = wordDao.delete(word)
     override suspend fun clearWords() = wordDao.clearAll()
 }

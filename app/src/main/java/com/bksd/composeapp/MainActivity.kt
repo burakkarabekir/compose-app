@@ -1,33 +1,38 @@
 package com.bksd.composeapp
 
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.bksd.composeapp.route.AppNavigation
-import com.bksd.composeapp.ui.theme.ComposeAppTheme
-import com.bksd.route.AppNavigator
-import org.koin.android.ext.android.inject
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.bksd.composeapp.route.nav_host.AppNavHost
+import com.bksd.core_ui.theme.AppTheme
+import com.bksd.route.MainGraph
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 class MainActivity : ComponentActivity() {
-    private val navigator: AppNavigator by inject()
+    private lateinit var appNavController: NavHostController
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
+        )
         setContent {
-            ComposeAppTheme {
-                Surface(
+            appNavController = rememberNavController()
+            AppTheme {
+                AppNavHost(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    AppNavigation(
-                        navigator = navigator,
-                    )
-                }
+                    startDestination = MainGraph.MainGraphRoute,
+                    appNavController = appNavController
+                )
             }
         }
     }

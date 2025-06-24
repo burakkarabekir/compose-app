@@ -4,7 +4,11 @@ import com.bksd.core_domain.result.DomainResult
 import kotlinx.coroutines.flow.Flow
 
 abstract class UseCase<in P, R> {
-    abstract suspend operator fun invoke(parameters: P): Result<R>
+    abstract suspend operator fun invoke(params: P): Result<R>
+}
+
+abstract class UseCaseNoResult<in P, R> {
+    abstract suspend operator fun invoke(params: P)
 }
 
 abstract class NoParamUseCase<R> {

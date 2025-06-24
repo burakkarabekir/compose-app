@@ -11,8 +11,10 @@ import kotlinx.coroutines.flow.Flow
  */
 interface WordRepository {
     suspend fun getWordOfDay(): Flow<DomainResult<WordOfDay>>
+    suspend fun getWordDetail(word: String): Flow<DomainResult<WordDetail>>
     suspend fun getRecentWords(): Flow<DomainResult<List<WordDetail>>>
     suspend fun fetchWord(word: String): Flow<DomainResult<WordDetail>>
+    suspend fun setWordFavorite(word: String, isFavorite: Boolean)
     /*
     suspend fun getWordDefinition(word: String): Flow<WordDefinition>
     suspend fun getWordSynonyms(word: String): Flow<WordSynonyms>

@@ -1,44 +1,52 @@
 package com.bksd.route
 
-import androidx.navigation.NavOptions
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import androidx.navigation.NavOptionsBuilder
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.launch
 
-class AppNavigatorImpl(
-    private val scope: CoroutineScope = CoroutineScope(
-        context = SupervisorJob() + Dispatchers.Main.immediate
-    )
-) : AppNavigator {
-    private val _navigation = Channel<AppNavigationCommand>(Channel.BUFFERED)
-    override val navigation = _navigation.receiveAsFlow()
+class AppNavigatorImpl: AppNavigator {
 
-    override fun navigate(command: AppNavigationCommand) {
-        scope.launch { _navigation.send(command) }
-    }
+    private val _appNavigationAction = Channel<NavigationAction>(Channel.BUFFERED)
+    override val appNavigationAction = _appNavigationAction.receiveAsFlow()
 
-    override fun navigateBack() {
-        scope.launch { _navigation.send(AppNavigationCommand.Back) }
-    }
+    private val _mainNavigationAction = Channel<NavigationAction>(Channel.BUFFERED)
+    override val mainNavigationAction = _mainNavigationAction.receiveAsFlow()
 
-    override fun popUpTo(route: String, inclusive: Boolean) {
-        scope.launch { _navigation.send(AppNavigationCommand.PopUpTo(route, inclusive)) }
-    }
-
-    override fun navigateAndClearBackStack(route: String) {
-        scope.launch {
-            _navigation.send(
-                AppNavigationCommand.Navigate(
-                    route = route,
-                    navOptions = NavOptions.Builder()
-                        .setPopUpTo(0, true)
-                        .setLaunchSingleTop(true)
-                        .build()
-                )
+    override suspend fun navigate( route: Any,
+                                   navOptions: NavOptionsBuilder.() -> Unit) {
+        val navigationChannel = getCorrectChannelForRoute(route)
+        navigationChannel.send(
+          NavigationAction.Navigate(
+                route = route,
+                navOptions = navOptions
             )
-        }
+        )
+    }
+
+    override suspend fun navigateBack(
+        route: Any?,
+        inclusive: Boolean,
+        saveState: Boolean
+    ) {
+        _appNavigationAction.send(
+           NavigationAction.NavigateBack(route, inclusive, saveState)
+        )
+    }
+
+    override suspend fun navigateRoot(
+        route: Any,
+        navOptions: NavOptionsBuilder.() -> Unit
+    ) {
+        navigateBack(
+            route = MainGraph.MainGraphRoute,
+            inclusive = false
+        )
+        navigate(route, navOptions)
+    }
+
+    private fun getCorrectChannelForRoute(route: Any): Channel<NavigationAction> = when (route) {
+        is MainGraph.HomeScreenRoute,
+        is MainGraph.SearchScreenRoute -> _mainNavigationAction
+        else -> _appNavigationAction
     }
 }

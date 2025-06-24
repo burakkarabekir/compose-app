@@ -9,5 +9,5 @@ import org.koin.dsl.module
 
 val routeModule = module {
     single { CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate) }
-    single<AppNavigator> { AppNavigatorImpl(get()) }
+    single<AppNavigator> { AppNavigatorImpl() }
 }

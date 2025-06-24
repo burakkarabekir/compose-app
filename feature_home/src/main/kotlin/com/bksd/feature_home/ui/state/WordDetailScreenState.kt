@@ -1,10 +1,9 @@
 package com.bksd.feature_home.ui.state
 
+import com.bksd.word_ui.model.WordDetailCardUi
+import com.bksd.word_ui.model.WordDetailUi
+
 data class WordDetailScreenState(
-    val word: String = "",
-    val definition: String? = null,
-    val synonyms: List<String>? = null,
-    val antonyms: List<String>? = null,
-    val examples: List<String>? = null,
-    val pronunciation: String? = null
+    val uiModel: WordDetailUi = WordDetailCardUi(),
+    val isLoading: Boolean = false
 )

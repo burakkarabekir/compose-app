@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.bksd.core_ui.theme.AppTheme
 import com.bksd.word_ui.model.WordDetailUi
 import com.bksd.word_ui.model.WordOfDayDetailCardUi
 
@@ -24,7 +25,7 @@ import com.bksd.word_ui.model.WordOfDayDetailCardUi
 fun WordDetailCard(
     detailUi: WordDetailUi,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit
+    onClick: () -> Unit = {},
 ) {
     Card(
         modifier = modifier
@@ -32,7 +33,7 @@ fun WordDetailCard(
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
+            containerColor = AppTheme.colorScheme.primaryContainer
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
@@ -40,30 +41,42 @@ fun WordDetailCard(
             if (detailUi is WordOfDayDetailCardUi) {
                 Text(
                     text = detailUi.label,
-                    style = MaterialTheme.typography.labelLarge,
+                    style = AppTheme.typography.heading2,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
+            }
+            detailUi.word?.let {
                 Spacer(modifier.height(8.dp))
-            }
             Text(
-                text = detailUi.word,
+                text = it,
                 style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
+                color = MaterialTheme.colorScheme.primary
             )
-            Spacer(modifier.height(4.dp))
-            detailUi.pronunciation?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
             }
-            Spacer(modifier.height(8.dp))
             detailUi.definition?.let {
                 Text(
                     text = it,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    color = MaterialTheme.colorScheme.primary,
+                    maxLines = 2
+                )
+            }
+
+            Spacer(modifier.height(8.dp))
+            detailUi.synonyms?.firstOrNull()?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    maxLines = 2
+                )
+            }
+
+            detailUi.antonyms?.firstOrNull()?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
                     maxLines = 2
                 )
             }
